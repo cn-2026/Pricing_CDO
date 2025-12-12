@@ -1,0 +1,179 @@
+\section{Introduction}
+\subsection{Motivation}
+
+Depuis les années 1990, le développement des marchés de crédit a donné naissance à une classe de produits dérivés complexes destinés à transférer, mutualiser et redistribuer le risque de défaut : les \textit{Collateralized Debt Obligations} (CDO) ou titre de créance collatéralisé en français. Initialement introduits par des institutions financières telles que \textit{Drexel Burnham Lambert} à la fin des années 1980, puis massivement développés par \textit{J.P. Morgan} au cours de la décennie suivante, les CDO avaient pour ambition d’optimiser l’allocation du risque de crédit en permettant la titrisation de portefeuilles d’actifs hétérogènes. Ils offraient aux investisseurs la possibilité de prendre des expositions ajustées au risque grâce à une structure hiérarchisée en tranches (\textit{equity}, \textit{mezzanine} et \textit{senior}), chacune absorbant une fraction distincte des pertes éventuelles.
+
+Les \textit{CDO synthétiques}, reposant non pas sur des obligations physiques mais sur des contrats de \textit{Credit Default Swap} (CDS), ont marqué une étape importante dans cette évolution. Présentés comme plus flexibles, plus liquides et plus rapides à structurer, ils permettaient aux institutions financières d’accroître ou de couvrir leurs expositions sur des portefeuilles de crédit sans détenir directement les actifs sous-jacents. Cette innovation a contribué à l’expansion rapide du marché des produits structurés au cours des années 2000.
+
+Cependant, la crise financière de 2007--2008 a mis en lumière les risques systémiques liés à ces instruments. Leur complexité intrinsèque, la difficulté d’estimer correctement les corrélations de défaut et les limites du modèle de copule gaussienne largement utilisé à l’époque ont conduit à une sous-estimation significative des risques réels associés à certaines tranches, en particulier les tranches \textit{mezzanine} et \textit{senior}. Ces insuffisances de modélisation et de calibration ont joué un rôle non négligeable dans l’amplification de la crise.
+
+Dans ce contexte, une compréhension rigoureuse des mécanismes de valorisation des CDO synthétiques, notamment des modèles de dépendance et des dynamiques de défaut, demeure essentielle. La capacité à tarifier correctement ces instruments est déterminante pour la gestion du risque et la stabilité financière. Le présent rapport s’inscrit dans cette perspective : il vise à étudier, formaliser et comparer plusieurs approches de modélisation du risque de défaut et de tarification des tranches synthétiques, en particulier les modèles à copules et les modèles à intensité.
+
+\subsection{Cadre probabiliste et hypothèses sur le taux instantané}
+
+\subsubsection{Espace probabilisé et filtration}
+
+Nous nous plaçons dans un cadre continu en temps sur un horizon fini $[0,T]$, muni
+d'un espace probabilisé complet
+\[
+(\Omega,\mathcal{F},\mathbb{P},(\mathcal{F}_t)_{t\ge 0},),
+\]
+où la filtration $(\mathcal{F}_t)$ satisfait les conditions usuelles:
+
+\begin{itemize}
+    \item Continuité à droite : $\mathcal{F}_t = \bigcap_{s>t} \mathcal{F}_s$
+    \item Complétude : Soit $N$ un ensemble négligeable, alors $N \subset \mathcal{F}_0$
+\end{itemize}
+
+\noindent Tous les processus considérés sont supposés adaptés à $(\mathcal{F}_t)$ c'est à dire, pour tout processus $(X_t)_{t\ge0}$, pour tout $t\ge0$, la variable aléatoire $X_t$ est $\mathcal{F}_t$-mesurable.
+
+\subsubsection{Actifs et numéraire}
+
+On suppose l'existence d'un \emph{numéraire} : un actif sans risque $B=(B_t)_{t\ge 0}$
+défini par
+\begin{equation}
+    B_t = \exp\!\left(\int_0^t r_s \, ds\right),
+    \label{rates_formula}
+\end{equation}
+où $r_t$ est le \emph{taux instantané} (ou \emph{taux court}). Par définition, le
+processus $(r_t)_{t \ge 0}$ vérifie les hypothèses suivantes :
+
+\begin{itemize}
+    \item \textbf{(H1) Adaptation et mesurabilité :}
+    $r_t$ est $(\mathcal{F}_t)$-progressivement mesurable.
+    %
+    \item \textbf{(H2) Bornes ou conditions d'intégrabilité :}
+    $\displaystyle \int_0^T |r_s|\,ds < \infty$ p.s., ce qui garantit que 
+    $B_t>0$ est bien défini et continu.
+    %
+    \item \textbf{(H3) Modélisation stochastique :}
+    $r_t$ est généralement supposé être une diffusion de la forme :
+    \begin{equation}
+        dr_t = \mu(t,r_t)\,dt + \sigma(t,r_t)\,dW_t,
+    \end{equation}
+    où $(W_t)$ est un Brownien sous $\mathbb{P}$, et les coefficients
+    $\mu$, $\sigma$ satisfont des conditions de Lipschitz et croissance linéaire
+    assurant l'existence et l'unicité forte de la solution.
+\end{itemize}
+
+Ce numéraire nous offre une mesure de la valeur monétaire au temps $t$, pour 1€ placé en banque au temps initial on récupère $B_t$ au temps $t$. L'évolution de la valeur monétaire dépend des taux d'intérêts, dans un modèle réaliste où les taux instantanés varient constamment nous sommes obligés d'intégrer un processus stochastique ce qui explique la forme de l'équation (\ref{rates_formula}).
+
+\subsubsection{Processus de prix des actifs risqués}
+
+Soit $S=(S_t)_{t \ge 0}$ un actif risqué. Sous la probabilité historique
+$\mathbb{P}$, sa dynamique est supposée être une semi-martingale, typiquement
+un processus de diffusion :
+\begin{equation}
+    dS_t = S_t\big( b_t\,dt + \sigma_t\,dW_t \big),
+\end{equation}
+où $(b_t)$ est la dérive ou ''\textit{drift}'' (prime de risque incluse) et $(\sigma_t)$ la volatilité.
+
+\noindent On note les prix actualisés par le numéraire :
+\begin{equation}
+    \tilde S_t := \frac{S_t}{B_t}.
+\end{equation}
+
+\subsubsection{Hypothèse d'absence d'arbitrage et existence de la mesure risque-neutre}
+
+Nous faisons l'hypothèse fondamentale :
+
+\begin{itemize}
+    \item \textbf{(H4) Absence de free lunch with vanishing risk (NFLVR).}
+\end{itemize}
+
+Selon le théorème fondamental de l'évaluation des actifs \cite{DelbaenSchachermayer},
+l'hypothèse NFLVR est équivalente à l'existence d'une probabilité
+$\mathbb{P}^* \sim \mathbb{P}$ (appelée \emph{mesure équivalente martingale} ou \emph{mesure risque-neutre})
+telle que les prix actualisés soient des \emph{martingales locales} sous
+$\mathbb{P}^*$ :
+\[
+\tilde S_t = \frac{S_t}{B_t}
+\quad\text{est un }\mathbb{P}^*\text{-local martingale}.
+\]
+Sous cette mesure, la dynamique de $S_t$ s'écrit :
+\begin{equation}
+    dS_t = S_t\big( r_t\,dt + \sigma_t\,dW_t^* \big),
+\end{equation}
+où $(W_t^*)$ est un Brownien sous $\mathbb{P}^*$.
+
+\subsubsection{Espérance risque-neutre}\label{risk_neutral_esp}
+
+Nous cherchons à présent à connaître le prix juste $\Pi_t(X)$ (i.e. sans prime de risque) à payer en $t$ pour acheter un actif ayant une revendication ou \emph{payoff} $X\in L^1(\mathcal{F}_T,\mathbb{P}^*)$ en $T$. 
+
+Nous commençons donc par actualiser la valeur de $X$ en $T$ par le numéraire $B_T$ (car 1€ demain vaut moins que 1€ aujourd'hui) et nous estimons cette quantité inconnue en prenant son espérance sous un univers sans prime de risque conditionnellement à l'information disponible en $t$ c'est à dire $\mathcal{F}_t$. En normalisant par le numéraire à l'instant présent nous obtenons :
+\begin{equation}
+    \Pi_t(X) = B_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{X}{B_T} \,\middle|\, \mathcal{F}_t \right].
+\end{equation}
+Cette formule suit directement de la propriété de martingale de $(\tilde S_t)$ et de l'unicité de la mesure $\mathbb{P}^*$ dans un marché complet.
+
+\subsection{Le modèle de crédit}
+
+\subsubsection{Les risques}
+
+\noindent La gestion du risque en finance repose traditionnellement sur quatre catégories principales :
+
+\paragraph{Le risque de marché :}
+Il correspond aux pertes potentielles dues aux variations défavorables des facteurs de marché tels que les taux d’intérêt, les spreads de crédit, les devises ou les prix des actions. Il affecte directement la valorisation des portefeuilles et constitue une composante essentielle du risque des produits dérivés. 
+\paragraph{Le risque de crédit :} 
+Il désigne la possibilité qu’une contrepartie fasse défaut sur ses engagements contractuels. Il inclut non seulement le risque de défaut en lui-même, mais également l’incertitude sur le taux de recouvrement et la dégradation éventuelle de la qualité de crédit des emprunteurs. 
+\paragraph{Le risque de liquidité :} 
+Il concerne la difficulté à acheter ou vendre un actif rapidement sans affecter significativement son prix. Il se manifeste lorsque les marchés deviennent disfonctionnels, peu profonds ou soumis à des tensions importantes, rendant coûteuse ou impossible l’exécution de transactions. 
+\paragraph{Le risque opérationnel :} 
+Il regroupe l’ensemble des pertes résultant de défaillances humaines, techniques, organisationnelles ou liées à des événements externes. Il inclut notamment les erreurs de traitement, les défauts de contrôle interne, les cyberattaques, ainsi que les risques juridiques.
+
+Ces quatre dimensions constituent la base de toute analyse robuste du risque financier et permettent de comprendre les différentes sources d’incertitude auxquelles les institutions sont exposées.
+
+Une estimation fiable de ces risques est de la plus grande importance afin de mesurer les risques de crédit contenu dans les portefeuilles et donc les pertes potentielles. De plus elle permet de connaître la sensibilité des divers instruments financiers et ainsi de contrôler son exposition au risque. C'est sur ces bases quantitatives que les diverses institutions mesures leurs performances et diversifient leurs investissement afin de se protéger.
+
+Enfin c'est sur ces modèles que peuvent se baser les agences de régulations afin de s'assurer que les institutions possèdent suffisamment de fonds propres pour amortir les potentielles crises financières.
+
+\subsubsection{Modèles du risque de crédit}
+
+La modélisation du risque de crédit s’appuie traditionnellement sur l’étude d’un actif fondamental : l’obligation zéro-coupon risquée, dont la valorisation doit intégrer la possibilité de défaut de l’émetteur. Deux grandes familles de modèles permettent de décrire l'apparition du défaut et la valeur de la dette risquée :
+
+\begin{itemize}
+    \item les modèles structurels, 
+    \item les modèles à forme réduite.
+\end{itemize}
+
+Une troisième catégorie intervient dans le cadre des produits de crédit plus complexes : les modèles de corrélation des instants de défaut, requis notamment pour l’évaluation des produits dérivés exotiques de crédit (\emph{basket}, CDO, etc.).
+
+\paragraph{Cadre général de valorisation.}
+Dans toute la suite, l’évaluation s’effectue sous la probabilité risque-neutre. On se place sur un espace probabilisé filtré $(\Omega, \mathcal{F}, \mathbb{P}, (\mathcal{F}_t)_{t \ge 0})$ où est défini le processus de taux d’intérêt instantané $(r_t)_{t \ge 0}$ et où $\mathbb{P}^\ast$ désigne une probabilité risque-neutre.
+
+La valeur d’un actif contingent est donnée par l’espérance actualisée de ses flux futurs sous $\mathbb{P}^\ast$ (cf. \ref{risk_neutral_esp}).
+
+\paragraph{Hypothèses de recouvrement.}
+La valorisation d’un zéro-coupon risqué $D(t,T)$ dépend de l’instant de défaut $\tau$ et du taux de recouvrement aléatoire $R$. Plusieurs hypothèses de recouvrement sont possibles :
+
+\begin{itemize}
+    \item \textit{Fractional Recovery of Par Value} : au défaut, une fraction $R$ du nominal est immédiate\-ment récupérée.
+    \item \textit{Fractional Recovery of Treasury Value} : le montant recouvré à défaut est reçu à maturité.
+    \item \textit{Fractional Recovery of Market Value} : au moment du défaut, une fraction $R$ de la valeur juste avant défaut $D(\tau^-,T)$ est versée.
+\end{itemize}
+
+\paragraph{Modèles structurels.}
+Introduits par Merton (1974), ils reposent sur la modélisation du bilan de l’entreprise. Le défaut survient lorsque la valeur des actifs devient insuffisante pour honorer la dette. Les zéro-coupons risqués apparaissent alors comme des produits dérivés sur la valeur des actifs. La qualité de crédit dépend donc de trois variables fondamentales :
+
+\begin{itemize}
+    \item la valeur totale des actifs,
+    \item la volatilité de ces actifs,
+    \item le levier d’endettement.
+\end{itemize}
+
+Ces modèles sont largement utilisés dans la pratique, notamment via l’approche Moody’s KMV, et établissent un lien direct entre risque equity et risque de crédit.
+
+\paragraph{Modèles à forme réduite.}
+Dans ces modèles, le défaut est considéré comme un événement imprévisible, caractérisé par un \textit{taux de hasard} (ou intensité de défaut) $(\lambda_t)_{t\ge 0}$. Le cas le plus simple est celui d’un défaut gouverné par un processus de Poisson d’intensité constante $\lambda$. Dans ce cadre :
+\begin{equation}
+    \mathbb{P}[\tau > t] = e^{-\lambda t}, \qquad \mathbb{E}[\tau] = \frac{1}{\lambda},
+\end{equation}
+et la probabilité conditionnelle de défaut infinitésimale est :
+\begin{equation}
+    \mathbb{P}[\tau \in (t,t+\Delta t)\mid \tau>t] = \lambda\,\Delta t + o(\Delta t).
+\end{equation}
+
+L’intensité peut être rendue dépendante de variables de marché (taux, spreads) ou de caractéristiques propres à l’entreprise (notation). Ces modèles sont aujourd’hui centraux dans la valorisation des produits dérivés de crédit.
+
+\paragraph{Modèles de corrélation.}
+Pour traiter des portefeuilles de crédits (basket, CDO, tranches), il est nécessaire de modéliser la dépendance entre instants de défaut, ce qui conduit aux modèles de corrélation des défauts.

@@ -1,0 +1,130 @@
+\section{Produits dérivés de crédit}
+\subsection{Le marché du crédit risqué}
+
+\subsubsection{Les obligations risquées}
+
+
+\subsubsection{Spread de crédit}
+
+\subsubsection{Notations de crédit}
+
+\subsection{Credit Default Swap}
+\subsubsection{Description du produit}
+
+Un \emph{Credit Default Swap} (CDS) ou plus simplement \emph{swap} est un produit dérivé du crédit et peut être vu comme l'élément fondamental (ou sous-jacent) des produits plus exotiques comme les CDO synthétiques que nous verrons plus tard.
+
+Sa fonction principale est de transférer le risque de crédit de référence d'une entreprise C (\emph{entité de référence}) entre deux contreparties A et B. Dans le contrat standard, l’une des parties en question, disons A, achète une protection contre le risque de perte en
+cas de défaut de l’entité de référence C. Ce défaut est déclenché par un évènement de crédit formel spécifié dans le contrat. Cet événement peut être la faillite de l’entreprise, un défaut de paiement ou la restructuration de sa dette.
+
+La protection est valable jusqu’à la maturité du swap. En échange de cette protection, l’acheteur A verse périodiquement (en général, tous les 3 mois) au vendeur B une prime et ce jusqu’au défaut de C ou jusqu’à maturité du swap. La jambe du swap correspondante est appelée \emph{premium leg}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/CDS-nodefault.png}
+    \caption{Schéma de transaction d'un CDS sans défaut}
+    \label{fig:CDS_no_default}
+\end{figure}
+
+Si le défaut intervient avant la maturité du swap, le vendeur de protection effectue un paiement à l’acheteur de protection. Ce paiement équivaut à la différence entre le nominal de la dette couverte par le swap et le taux de recouvrement observé à l’instant du défaut. Cette fois la jambe du swap correspondante est appelée \emph{protection leg}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/CDS-default.png}
+    \caption{Schéma de transaction d'un CDS dans le cas d'un défaut}
+    \label{fig:CDS_default}
+\end{figure}
+
+\subsubsection{Évaluation de la marge d’un CDS}
+
+Considérons un CDS de maturité $T>0$ sur une entité de référence, portant sur un notionnel $N>0$. 
+On note $(T_k)_{k=1,\dots,m}$ les dates de paiement de la jambe de prime (généralement trimestrielles), avec $0 < T_1 < \cdots < T_m = T$.  
+La fraction d'année associée au coupon $k$ selon la convention du marché est notée $\delta_k = T_k-T_{k-1}$.
+Considérons $\tau$ le temps de défaut de l'entité de référence, défini comme un temps d'arrêt, nous y associons un taux de recouvrement noté $R\in[0,1]$.
+
+\paragraph{Jambe fixe (premium leg).}
+
+À chaque date de coupon $T_k$, l'acheteur de protection paie un montant proportionnel au \emph{spread} (ou marge) $s$ (exprimé en taux annuel), au notionnel et à la fraction d'année. Ce paiement n’a lieu que si l’entité de référence n’a pas fait défaut avant $T_k$, c'est-à-dire si $\tau > T_k$. La valeur présente sous la mesure risque-neutre $\mathbb{P}^\ast$ de la jambe fixe est donc :
+\begin{equation}
+    \text{JF}(s)
+= s\,N
+\sum_{k=1}^m 
+\delta_k \; \mathbb{E}^{\mathbb{P}^\ast}
+\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{B_{T_k}}\right].
+\end{equation}
+
+\paragraph{Jambe variable (protection leg).}
+
+En cas de défaut à un temps aléatoire $\tau \le T$, le vendeur de protection verse la \emph{loss given default} :
+\begin{equation}
+    \text{LGD} = N(1-R).
+\end{equation}
+La valeur présente de la jambe de protection ou jambe variable est alors
+\begin{equation}
+    \text{JV}
+= N(1-R)\,
+\mathbb{E}^{\mathbb{P}^\ast}
+\!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{B_\tau}\right].
+\end{equation}
+
+
+
+\paragraph{Détermination du spread.}
+
+Un CDS s’échange à valeur nulle à l’initiation. Le spread $s^\ast$ est donc défini par l’égalité :
+\begin{equation}
+    \text{JF}(s^\ast) = \text{JV}.
+\end{equation}
+On obtient :
+\[
+s^\ast
+=
+(1-R)\;
+\frac{
+\mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{B_\tau}\right]
+}{
+\sum_{k=1}^m 
+\delta_k \, \mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{B_{T_k}}\right]
+}.
+\]
+
+\paragraph{Cas particulier : modèle à intensité déterministe.}
+
+Dans un cadre standard où  le taux sans risque est constant : $r_t = r$ et l'intensité de défaut est une fonction déterministe : $\lambda : t \mapsto \lambda(t)$ la probabilité de survie est :
+\begin{equation}
+    S(t)=\exp\!\left(-\int_0^t \lambda(u)\, du\right),
+\end{equation}
+et la densité de défaut sous la mesure risque-neutre est $\lambda(t)\,S(t)$.
+
+\noindent Alors la jambe variable est donnée par :
+
+\begin{equation}
+    \text{JV} = N(1-R) \int_0^T e^{-rt}\lambda(t)\,S(t)\,dt,
+\end{equation}
+et la jambe fixe par :
+\begin{equation}
+    \text{JF}(s) = s\,N \sum_{k=1}^m \delta_k \, e^{-rT_k} S(T_k).
+\end{equation}
+Le spread s'écrit :
+\begin{equation}
+    s^\ast
+    =
+    (1-R)\;
+    \frac{
+    \int_0^T e^{-rt}\lambda(t)\,S(t)\,dt
+    }{
+    \sum_{k=1}^m \delta_k \, e^{-rT_k} S(T_k)
+    }.
+\end{equation}
+
+Ce spread constitue la prime d'assurance annuelle qui égalise la valeur actualisée des paiements fixes et celle du paiement contingent versé en cas de défaut de l'entité sous-jacente.
+
+
+
+\subsection{Collateralized Debt Obligation}
+\subsubsection{Titrisation}
+
+
+\subsubsection{Les produits synthétiques}
+
+
+\subsubsection{Un exemple de CDO synthétique}
