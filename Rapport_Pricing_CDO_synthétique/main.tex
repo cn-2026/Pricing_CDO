@@ -19,10 +19,26 @@
 \usepackage{indentfirst}
 \usepackage{tikz}
 
+% Pour pouvoir insérer théorèmes et définitions
+
+\usepackage{amsthm}
+
+% Environnements de théorèmes
+\theoremstyle{plain}
+\newtheorem{theorem}{Théorème}[section]
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Définition}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remarque}
+
 % Tout ça pour pouvoir utiliser les euros...
 \usepackage{wasysym}
 \usepackage{newunicodechar}
 \newunicodechar{€}{\euro}
+
+\usepackage{bbold} % pour la fonction indicatrice
 
 \newlength{\subfigwidth}
 \setlength{\subfigwidth}{20mm}

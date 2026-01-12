@@ -31,10 +31,10 @@ où la filtration $(\mathcal{F}_t)$ satisfait les conditions usuelles:
 
 \paragraph{Cas déterministe}
 
-Considérons un taux annuel constant $r \in \mathbb{R}_+$, un capital initial $B_0 = 1$ et
+Considérons un taux annuel constant $r \in \mathbb{R}$, un capital initial $N_0 = 1$ et
 cherchons à calculer le capital au temps $T$ avec $n$ compositions par an :
 \begin{equation}
-    B_T^{(n)} = \left ( 1 + \frac{r}{n} \right )^{nT}
+    N_T^{(n)} = \left ( 1 + \frac{r}{n} \right )^{nT}
 \end{equation}
 Or :
 \begin{equation}
@@ -42,7 +42,7 @@ Or :
 \end{equation}
 Donc le capital en capitalisation continue est :
 \begin{equation}
-    B_T = e^{rT}
+    N_T = e^{rT}
 \end{equation}
 A présent découpons l'intervalle $[0, T]$ en $n$ sous-intervalles :
 \begin{equation}
@@ -52,26 +52,26 @@ Et supposons sur chaque intervalle $[t_i, t_{i+1}[$ le taux constant et égal à
 Nous pouvons alors définir le schéma d'Euler explicite tel que :
 \begin{equation}
     \begin{cases}
-        B_0^{(n)} = 1 \\
-        B_{t_{i+1}}^{(n)} = B_{t_{i}}^{(n)} \left (1 + r(t_{i}) \Delta t \right )
+        N_0^{(n)} = 1 \\
+        N_{t_{i+1}}^{(n)} = N_{t_{i}}^{(n)} \left (1 + r(t_{i}) \Delta t \right )
     \end{cases}
 \end{equation}
 solution de l'équation différentielle ordinaire:
 \begin{equation}
-    \dot{B}_t = r(t) B_t
+    \dot{N}_t = r(t) N_t
 \end{equation}
 Sous l'hypothèse d'intégrabilité de $r$ sur $[0, T]$, par le théorème de Cauchy-Lipschitz 
-\footnote{En posant $f(t,B)=r(t)B$, $r$ est localement bornée sur $[0, T]$ donc $f$ est
+\footnote{En posant $f(t,N)=r(t)N$, $r$ est localement bornée sur $[0, T]$ donc $f$ est
 localement lipschitzienne et continue presque partout par rapport à la deuxième variable ce qui vérifie les
 hypothèses du théorème.} il existe une unique solution à
-ce problème que l'on nommera \emph{numéraire} : un actif sans risque $B=(B_t)_{t\ge 0}$
+ce problème que l'on nommera \emph{numéraire} : un actif sans risque $N=(N_t)_{t\ge 0}$
 vérifiant
 \begin{equation}
-    B_t = \exp\!\left(\int_0^t r_s \, ds\right),
+    N_t = \exp\!\left(\int_0^t r_s \, ds\right),
     \label{rates_formula}
 \end{equation}
 Ce numéraire nous offre une mesure de la valeur monétaire au temps $t$,
-pour 1€ placé en banque au temps initial on récupère $B_t$ au temps $t$.
+pour 1€ placé en banque au temps initial on récupère $N_t$ au temps $t$.
 
 \paragraph{Cas stochastique}
 
@@ -99,19 +99,19 @@ de \emph{taux instantané} (ou \emph{taux court}) $(r_t)_{t \ge 0}$ vérifiant l
 Cette fois, nous définissons l'équation différentielle stochatique suivante :
 \begin{equation}
     \begin{cases}
-        B_0 = 1 \\
-        dB_t = r_t B_t dt
+        N_0 = 1 \\
+        dN_t = r_t N_t dt
     \end{cases}
 \end{equation}
 Cette EDS est en réalité une équation différentielle aléatoire puisqu'elle
 ne comporte pas de terme de diffusion mais ses coefficients sont aléatoires. Nous cherchons
 ainsi à déterminer le champ mesurable 
 \begin{equation}
-    B : [0, T] \time \Omega \to \mathbb{R}
+    N : [0, T] \time \Omega \to \mathbb{R}
 \end{equation}
 vérifiant, pour tout $t \in [0, T]$,
 \begin{equation}
-    B_t(\omega) = 1 + \int_0^t r_s(\omega)B_s(\omega) ds, \quad \text{p.s.}
+    N_t(\omega) = 1 + \int_0^t r_s(\omega)B_s(\omega) ds, \quad \text{p.s.}
 \end{equation}
 Remarquons que pour $\omega \in \Omega$ fixé cette égalité est
 déterministe, l'intégrale est de Lebesgue classique.
@@ -124,15 +124,32 @@ générale mais mesurable donc le théorème de Carathéodory s'applique mais pa
 En séparant les variables et en résolvant pour tout $\omega \in \Omega$ vérifiant $\mathbf{(H2)}$
 nous obtenons la solution suivante :
 \begin{equation}
-    B_t = \exp\!\left(\int_0^t r_s \, ds\right), \quad \text{p.s.}
+    N_t = \exp\!\left(\int_0^t r_s \, ds\right), \quad \text{p.s.}
 \end{equation}
 
 
 
 \subsubsection{Processus de prix des actifs risqués}
 
-Soit $S=(S_t)_{t \ge 0}$ un actif risqué. Sous la probabilité historique
-$\mathbb{P}$, sa dynamique est supposée être une semi-martingale, typiquement
+\begin{definition}[Martingale locale]
+Soit $(\Omega,\mathcal F,(\mathcal F_t)_{t \ge 0},\mathbb P)$ un espace probabilisé filtré satisfaisant les
+conditions usuelles. Un processus adapté \emph{càdlàg} \footnote{Un processus \emph{càdlàg} est un processus
+dont les trajectoires sont presque sûrement continues à droite et dont des limites à gauche existent partout.}
+$(M_t)_{t \ge 0}$ est appelé \emph{martingale locale} s'il existe une suite croissante de temps d'arrêt
+$(\tau_n)_{n \in \mathbb N}$ telle que
+\[
+\tau_n \to +\infty \quad \text{p.s.},
+\]
+et que, pour tout $n$, le processus arrêté
+\[
+(M_{\min(t, \tau_n)})_{t \ge 0}
+\]
+est une martingale (intégrable) par rapport à $(\mathcal F_t)$.
+\end{definition}
+
+Soit $S=(S_t)_{t \ge 0}$ un actif risqué. Sous la probabilité historique $\mathbb{P}$, sa dynamique est
+supposée être une \emph{semi-martingale}, c'est-à-dire un processus pouvant être décomposé
+en une \emph{locale martingale} et un processus adapté càdlag à variations locales finies, typiquement
 un processus de diffusion :
 \begin{equation}
     dS_t = S_t\big( b_t\,dt + \sigma_t\,dW_t \big),
@@ -146,105 +163,73 @@ où $(b_t)$ est la dérive ou ''\textit{drift}'' (prime de risque incluse) et $(
 
 \subsubsection{Hypothèse d'absence d'arbitrage et existence de la mesure risque-neutre}
 
-Nous faisons l'hypothèse fondamentale :
-
-\begin{itemize}
-    \item \textbf{(H4) Absence de free lunch with vanishing risk (NFLVR).}
-\end{itemize}
+\begin{definition}[Mesures équivalentes]
+    Soient $\mu$ et $\nu$ deux mesures sur l'espace mesurable $(X,\mathcal{F})$ et notons
+    \[
+        \mathcal{N}_\mu := \{ A \in \mathcal{F} \mid \mu(A) = 0 \}, 
+        \quad \mathcal{N}_\nu := \{ A \in \mathcal{F} \mid \nu(A) = 0 \}
+    \]
+    les mesures $\mu$ et $\nu$ sont dites \emph{équivalentes} si $\mathcal{N}_\mu = \mathcal{N}_\nu$
+    et nous noterons $\mu \sim \nu$.
+\end{definition}
 
 Selon le théorème fondamental de l'évaluation des actifs \cite{DelbaenSchachermayer},
-l'hypothèse NFLVR est équivalente à l'existence d'une probabilité
+l'hypothèse \emph{Absence of free lunch with vanishing risk} \footnote{Cette hypothèse est complexe à définir
+mathématiquement et ne nous apporte rien d'intéressant, en revanche c'est celle-ci qui justifie l'existence
+de la mesure équivalente risque-neutre. Nous pouvons l'interpréter comme une absence de stratégie ayant un gain
+sans risque réel ou investissement initial.} (NFLVR) est équivalente à l'existence d'une probabilité
 $\mathbb{P}^* \sim \mathbb{P}$ (appelée \emph{mesure équivalente martingale} ou \emph{mesure risque-neutre})
 telle que les prix actualisés soient des \emph{martingales locales} sous
 $\mathbb{P}^*$ :
 \[
-\tilde S_t = \frac{S_t}{B_t}
-\quad\text{est un }\mathbb{P}^*\text{-local martingale}.
+\tilde S_t = \frac{S_t}{N_t}
+\quad\text{est une }\mathbb{P}^*\text{-locale martingale}.
 \]
 Sous cette mesure, la dynamique de $S_t$ s'écrit :
 \begin{equation}
     dS_t = S_t\big( r_t\,dt + \sigma_t\,dW_t^* \big),
 \end{equation}
-où $(W_t^*)$ est un Brownien sous $\mathbb{P}^*$.
-
-\subsubsection{Espérance risque-neutre}\label{risk_neutral_esp}
-
-Nous cherchons à présent à connaître le prix juste $\Pi_t(X)$ (i.e. sans prime de risque) à payer en $t$ pour acheter un actif ayant une revendication ou \emph{payoff} $X\in L^1(\mathcal{F}_T,\mathbb{P}^*)$ en $T$. 
-
-Nous commençons donc par actualiser la valeur de $X$ en $T$ par le numéraire $B_T$ (car 1€ demain vaut moins que 1€ aujourd'hui) et nous estimons cette quantité inconnue en prenant son espérance sous un univers sans prime de risque conditionnellement à l'information disponible en $t$ c'est à dire $\mathcal{F}_t$. En normalisant par le numéraire à l'instant présent nous obtenons :
-\begin{equation}
-    \Pi_t(X) = B_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{X}{B_T} \,\middle|\, \mathcal{F}_t \right].
-\end{equation}
-Cette formule suit directement de la propriété de martingale de $(\tilde S_t)$ et de l'unicité de la mesure $\mathbb{P}^*$ dans un marché complet.
+où $(W_t^*)$ est un processus de Wiener sous $\mathbb{P}^*$.
 
 \subsection{Le modèle de crédit}
 
-\subsubsection{Les risques}
+Nous cherchons à présent à connaître le prix juste $\Pi_X(t,T)$ (i.e. sans prime de risque) à payer
+en $t$ pour acheter un actif ayant une revendication ou \emph{payoff} $X\in L^1(\mathcal{F}_T,\mathbb{P}^*)$
+en $T$. 
 
-\noindent La gestion du risque en finance repose traditionnellement sur quatre catégories principales :
-
-\paragraph{Le risque de marché :}
-Il correspond aux pertes potentielles dues aux variations défavorables des facteurs de marché tels que les taux d’intérêt, les spreads de crédit, les devises ou les prix des actions. Il affecte directement la valorisation des portefeuilles et constitue une composante essentielle du risque des produits dérivés. 
-\paragraph{Le risque de crédit :} 
-Il désigne la possibilité qu’une contrepartie fasse défaut sur ses engagements contractuels. Il inclut non seulement le risque de défaut en lui-même, mais également l’incertitude sur le taux de recouvrement et la dégradation éventuelle de la qualité de crédit des emprunteurs. 
-\paragraph{Le risque de liquidité :} 
-Il concerne la difficulté à acheter ou vendre un actif rapidement sans affecter significativement son prix. Il se manifeste lorsque les marchés deviennent disfonctionnels, peu profonds ou soumis à des tensions importantes, rendant coûteuse ou impossible l’exécution de transactions. 
-\paragraph{Le risque opérationnel :} 
-Il regroupe l’ensemble des pertes résultant de défaillances humaines, techniques, organisationnelles ou liées à des événements externes. Il inclut notamment les erreurs de traitement, les défauts de contrôle interne, les cyberattaques, ainsi que les risques juridiques.
-
-Ces quatre dimensions constituent la base de toute analyse robuste du risque financier et permettent de comprendre les différentes sources d’incertitude auxquelles les institutions sont exposées.
-
-Une estimation fiable de ces risques est de la plus grande importance afin de mesurer les risques de crédit contenu dans les portefeuilles et donc les pertes potentielles. De plus elle permet de connaître la sensibilité des divers instruments financiers et ainsi de contrôler son exposition au risque. C'est sur ces bases quantitatives que les diverses institutions mesures leurs performances et diversifient leurs investissement afin de se protéger.
-
-Enfin c'est sur ces modèles que peuvent se baser les agences de régulations afin de s'assurer que les institutions possèdent suffisamment de fonds propres pour amortir les potentielles crises financières.
-
-\subsubsection{Modèles du risque de crédit}
-
-La modélisation du risque de crédit s’appuie traditionnellement sur l’étude d’un actif fondamental : l’obligation zéro-coupon risquée, dont la valorisation doit intégrer la possibilité de défaut de l’émetteur. Deux grandes familles de modèles permettent de décrire l'apparition du défaut et la valeur de la dette risquée :
-
-\begin{itemize}
-    \item les modèles structurels, 
-    \item les modèles à forme réduite.
-\end{itemize}
-
-Une troisième catégorie intervient dans le cadre des produits de crédit plus complexes : les modèles de corrélation des instants de défaut, requis notamment pour l’évaluation des produits dérivés exotiques de crédit (\emph{basket}, CDO, etc.).
-
-\paragraph{Cadre général de valorisation.}
-Dans toute la suite, l’évaluation s’effectue sous la probabilité risque-neutre. On se place sur un espace probabilisé filtré $(\Omega, \mathcal{F}, \mathbb{P}, (\mathcal{F}_t)_{t \ge 0})$ où est défini le processus de taux d’intérêt instantané $(r_t)_{t \ge 0}$ et où $\mathbb{P}^\ast$ désigne une probabilité risque-neutre.
-
-La valeur d’un actif contingent est donnée par l’espérance actualisée de ses flux futurs sous $\mathbb{P}^\ast$ (cf. \ref{risk_neutral_esp}).
-
-\paragraph{Hypothèses de recouvrement.}
-La valorisation d’un zéro-coupon risqué $D(t,T)$ dépend de l’instant de défaut $\tau$ et du taux de recouvrement aléatoire $R$. Plusieurs hypothèses de recouvrement sont possibles :
-
-\begin{itemize}
-    \item \textit{Fractional Recovery of Par Value} : au défaut, une fraction $R$ du nominal est immédiate\-ment récupérée.
-    \item \textit{Fractional Recovery of Treasury Value} : le montant recouvré à défaut est reçu à maturité.
-    \item \textit{Fractional Recovery of Market Value} : au moment du défaut, une fraction $R$ de la valeur juste avant défaut $D(\tau^-,T)$ est versée.
-\end{itemize}
-
-\paragraph{Modèles structurels.}
-Introduits par Merton (1974), ils reposent sur la modélisation du bilan de l’entreprise. Le défaut survient lorsque la valeur des actifs devient insuffisante pour honorer la dette. Les zéro-coupons risqués apparaissent alors comme des produits dérivés sur la valeur des actifs. La qualité de crédit dépend donc de trois variables fondamentales :
-
-\begin{itemize}
-    \item la valeur totale des actifs,
-    \item la volatilité de ces actifs,
-    \item le levier d’endettement.
-\end{itemize}
-
-Ces modèles sont largement utilisés dans la pratique, notamment via l’approche Moody’s KMV, et établissent un lien direct entre risque equity et risque de crédit.
-
-\paragraph{Modèles à forme réduite.}
-Dans ces modèles, le défaut est considéré comme un événement imprévisible, caractérisé par un \textit{taux de hasard} (ou intensité de défaut) $(\lambda_t)_{t\ge 0}$. Le cas le plus simple est celui d’un défaut gouverné par un processus de Poisson d’intensité constante $\lambda$. Dans ce cadre :
+Nous commençons donc par actualiser la valeur de $X$ en $T$ par le numéraire $B_T$ (car 1€ demain vaut moins que
+1€ aujourd'hui) et nous estimons cette quantité inconnue en prenant son espérance sous un univers sans prime de
+risque conditionnellement à l'information disponible en $t$ c'est à dire $\mathcal{F}_t$. En normalisant par le
+numéraire à l'instant présent nous obtenons :
 \begin{equation}
-    \mathbb{P}[\tau > t] = e^{-\lambda t}, \qquad \mathbb{E}[\tau] = \frac{1}{\lambda},
+    \Pi_X(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{X}{N_T} \,\middle|\, \mathcal{F}_t \right].
 \end{equation}
-et la probabilité conditionnelle de défaut infinitésimale est :
+Cette formule suit directement de la propriété de martingale de $(\tilde S_t)$.
+
+A partir de cette formule il est possible de définir l'obligation zéro-coupon (i.e. à prix juste) sans risque,
+il s'agit d'un actif ayant une revendication de 1€ au temps $T$ dont la valeur est donnée par
 \begin{equation}
-    \mathbb{P}[\tau \in (t,t+\Delta t)\mid \tau>t] = \lambda\,\Delta t + o(\Delta t).
+    B(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{1}{N_T} \,\middle|\, \mathcal{F}_t \right]
+\end{equation}
+Il est alors possible de rentrer le terme $N_t$ dans l'espérance puisque celui-ci est constant conditionnellement
+à l'information $\mathcal{F}_t$ et en remplaçant par l'expression du numéraire nous obtenons :
+\begin{equation}
+    B(t,T) = \mathbb{E}^{\mathbb{P}^*}\!\left[ \exp\!\left(-\int_t^T r_s \, ds\right) \,\middle|\, \mathcal{F}_t \right]
+\end{equation}
+Si le risque de contrepartie de l'émetteur du zéro-coupon n'est pas nul, l'évaluation du
+zéro-coupon doit tenir compte de la possibilité du défaut de celui-ci : deux nouveaux
+risques entrent en jeu :
+\begin{itemize}
+    \item l'instant de défaut,
+    \item la perte en cas de défaut (\emph{Loss Given Default}).
+\end{itemize}
+La perte en cas de défaut s'exprime comme un taux de recouvrement $R$ éventuellement aléatoire et d'une hypothèse de
+recouvrement. Nous notons $D(t,T)$ la valeur en $t$ d'un zéro-coupon risqué de maturité $T$ et $\tau$ l'instant de
+défaut de l'émetteur de ce titre. Il existe plusieurs hypothèses de recouvrement en théorie des mathématiques financières
+mais nous utiliserons la plus courante dite \emph{recovery of par value} et qui consiste en le recouvrement
+à l'instant de défaut d'une fraction $R$ du nominal du titre
+\begin{equation}
+    D(t,T) = \mathbb{E}^{\mathbb{P}^*}\!\left[ e^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ \tau > T \}} + Re^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ t < \tau < T \}}\,\middle|\, \mathcal{F}_t \right]
 \end{equation}
 
-L’intensité peut être rendue dépendante de variables de marché (taux, spreads) ou de caractéristiques propres à l’entreprise (notation). Ces modèles sont aujourd’hui centraux dans la valorisation des produits dérivés de crédit.
 
-\paragraph{Modèles de corrélation.}
-Pour traiter des portefeuilles de crédits (basket, CDO, tranches), il est nécessaire de modéliser la dépendance entre instants de défaut, ce qui conduit aux modèles de corrélation des défauts.
