@@ -34,7 +34,7 @@ non-homogène d'intensité $\lambda(t)$, avec probabilité de survie
 et densité de probabilité
 \begin{equation}
 f_\tau(t) = \mathbb{E}^{\mathbb{P}^\ast}
-\!\left[ \lambda(t) \exp\left(-\int_0^t \lambda(s) \, ds\right)\right].
+\!\left[ \lambda(t) \exp\left(- \lambda(t) \, dt \right)\right].
 \end{equation}
 
 Lorsque l'intensité est déterministe, $\lambda(t) : \mathbb{R}_+ \to \mathbb{R}_+$, 
@@ -155,9 +155,9 @@ où $\kappa > 0$ est la vitesse de retour à la moyenne, $\theta > 0$ le niveau 
 terme, $\sigma > 0$ la volatilité, $W(t)$ un mouvement brownien, et $J(t)$ un processus 
 de Poisson composé modélisant les sauts. Le processus de sauts s'écrit
 \begin{equation}
-J(t) = \sum_{i=1}^{N(t)} Y_i,
+J(t) = \sum_{i=1}^{P(t)} Y_i,
 \end{equation}
-où $N(t)$ est un processus de Poisson d'intensité $\lambda_J$ et les $Y_i$ sont des 
+où $P(t)$ est un processus de Poisson d'intensité $\lambda_J$ et les $Y_i$ sont des 
 variables aléatoires i.i.d. représentant l'amplitude des sauts (typiquement positives 
 pour modéliser des augmentations soudaines du risque systémique). Cette spécification 
 permet de capturer à la fois la dynamique continue du risque via la composante 

@@ -1,10 +1,138 @@
-\section{Valorisation d'une tranche de CDO}
-\subsection{Lignes de cashflow}
+\section{Pricing des tranches de CDO synthétiques}
 
+\subsection{Structure et définition mathématique des tranches}
 
+Un CDO synthétique est structuré sur un portefeuille de référence composé de $n$
+entités, chacune associée à un CDS. Notons $N_i$ le notionnel de l'entité $i$, $R_i$
+son taux de recouvrement, et $\tau_i$ son temps de défaut. Le notionnel total du
+portefeuille s'écrit $N_{\text{tot}} = \sum_{i=1}^n N_i$.
+La perte cumulée du portefeuille à l'instant $t$ est définie par
+\begin{equation}
+L(t) = \sum_{i=1}^n N_i(1-R_i) \mathbb{1}_{\{\tau_i \leq t\}}.
+\end{equation}
+Cette quantité représente la somme des pertes effectives dues aux défauts survenus
+avant ou à l'instant $t$. Il est commode de normaliser cette perte en proportion
+du notionnel total et d'introduire le taux de perte du portefeuille
+\begin{equation}
+\ell(t) = \frac{L(t)}{N_{\text{tot}}} = \frac{1}{N_{\text{tot}}} \sum_{i=1}^n N_i(1-R_i) \mathbb{1}_{\{\tau_i \leq t\}}.
+\end{equation}
+Le capital du CDO est divisé en tranches caractérisées par leurs points d'attachement
+et de détachement.
+Une tranche $[K_1, K_2]$ est définie par un point d'attachement inférieur
+$K_1$ et un point de détachement supérieur $K_2$, avec $0 \leq K_1 < K_2 \leq 1$. 
+La tranche absorbe les pertes du portefeuille comprises entre $K_1 \cdot N_{\text{tot}}$ 
+et $K_2 \cdot N_{\text{tot}}$. La perte de la tranche à l'instant $t$ s'exprime comme
+\begin{equation}
+L_{\text{tranche}}(t) = \min\left(\max(L(t) - K_1 N_{\text{tot}}, 0), (K_2 - K_1) N_{\text{tot}}\right),
+\end{equation}
+ou de manière équivalente en termes normalisés
+\begin{equation}
+\ell_{\text{tranche}}(t) = \min(\max(\ell(t) - K_1, 0), K_2 - K_1).
+\end{equation}
+La tranche subit des pertes uniquement lorsque le taux de perte du portefeuille
+dépasse son point d'attachement inférieur $K_1$, et ces pertes sont plafonnées à
+l'épaisseur de la tranche $K_2 - K_1$. En pratique, les CDO synthétiques sont structurés 
+en plusieurs tranches de subordination différente. Par exemple, une distribution de tranches classiques
+pourrait prendre la forme suivante : Equity $[0\%, 5\%]$, Mezzanine $[5\%, 12\%]$,
+Senior $[12\%, 15\%]$, et Super-Senior $[15\%, 100\%]$.
 
-\subsection{Expected Tranche Loss}
+\subsection{Expected Loss et distribution des pertes}
 
+L'évaluation d'une tranche de CDO repose sur la connaissance de la distribution de probabilité
+de sa perte $L_{\text{tranche}}(t)$ sous la mesure risque-neutre $\mathbb{P}^*$.
+Une quantité centrale est la perte espérée de la tranche à la maturité $T$, définie par
+\begin{equation}
+\text{EL}_{\text{tranche}} = \mathbb{E}^*[L_{\text{tranche}}(T)] = \mathbb{E}^*\left[\min\left(\max(L(T) - K_1 N_{\text{tot}}, 0), (K_2 - K_1) N_{\text{tot}}\right)\right].
+\end{equation}
 
+Le calcul de cette espérance nécessite la connaissance de la distribution jointe des temps
+de défaut $(\tau_1, \ldots, \tau_n)$, obtenue par les modèles de copule ou d'intensité 
+stochastique présentés précédemment. 
 
-\subsection{Spread de tranche}
+Pour calculer la perte espérée, il est utile d'introduire la fonction de répartition de la perte
+du portefeuille. Notons $F_L(x, t) = \mathbb{P}^*(L(t) \leq x)$ la probabilité que la perte cumulée
+à l'instant $t$ n'excède pas $x$. La perte espérée de la tranche peut alors s'exprimer comme une
+intégrale faisant intervenir cette distribution. En effet, en notant $\ell = L/N_{\text{tot}}$ le taux
+de perte normalisé, nous avons
+\begin{equation}
+\text{EL}_{\text{tranche}} = N_{\text{tot}} \int_{K_1}^{K_2} \mathbb{P}^*(\ell(T) > x) \, dx.
+\end{equation}
+
+Cette formule illustre que la perte espérée d'une tranche correspond à l'intégrale de la probabilité
+de défaut excédant chaque niveau de perte dans l'intervalle $[K_1, K_2]$.
+
+La distribution $F_L(x,t)$ n'admet généralement pas de forme analytique, sauf dans des cas très particuliers.
+Le calcul numérique de cette distribution et de l'expected loss repose sur les méthodes de simulation 
+de Monte Carlo. L'algorithme procède comme suit :
+\begin{enumerate}
+\item Générer $M$ scénarios de la distribution jointe des temps de défaut $\{(\tau_1^{(m)}, \ldots, \tau_n^{(m)})\}_{m=1}^M$
+en utilisant soit la simulation par copule, soit la simulation du modèle à intensité stochastique avec conditionnement sur le 
+facteur systémique.
+\item Pour chaque scénario $m$, calculer la perte cumulée du portefeuille à l'instant $t$ :
+$$L^{(m)}(t) = N(1-R) \sum_{i=1}^n \mathbb{1}_{\{\tau_i^{(m)} \leq t\}}.$$
+\item En déduire la perte de la tranche pour ce scénario :
+$$L_{\text{tranche}}^{(m)}(t) = \min\left(\max(L^{(m)}(t) - K_1 N_{\text{tot}}, 0), (K_2 - K_1) N_{\text{tot}}\right).$$
+\item Estimer la perte espérée par moyenne empirique :
+$$\text{EL}_{\text{tranche}}(t) \approx \frac{1}{M} \sum_{m=1}^M L_{\text{tranche}}^{(m)}(t).$$
+\end{enumerate}
+Le nombre de simulations $M$ doit être suffisamment élevé pour garantir la convergence de l'estimateur Monte Carlo.
+
+\subsection{Valorisation des tranches et calcul du spread}
+
+Une tranche de CDO synthétique peut être vue comme un CDS dont le sous-jacent est le portefeuille
+de référence, mais avec une subordination définie par les points d'attachement et de détachement.
+L'acheteur de protection sur une tranche paie un spread périodique $s$ et reçoit une compensation en cas
+de pertes affectant la tranche. Le vendeur de protection perçoit le spread et s'engage à compenser les pertes de la tranche.
+
+La valorisation de la tranche repose sur l'égalité entre la valeur actualisée de la jambe premium
+ou jambe fixe (payée par l'acheteur de protection) et la valeur actualisée de la jambe protection 
+ou jambe variable (payée par le vendeur).
+Cette condition d'absence d'arbitrage permet de déterminer le spread équitable de la tranche.
+
+\subsubsection{Jambe premium}
+
+L'acheteur de protection paie le spread $s$ de manière périodique aux dates $t_1, t_2, \ldots, t_m = T$,
+avec une fréquence généralement trimestrielle. Le paiement à chaque date est proportionnel au notionnel
+restant de la tranche, c'est-à-dire à la partie de la tranche qui n'a pas encore subi de pertes. Le notionnel
+restant à l'instant $t_i$ est
+\begin{equation}
+N_{\text{restant}}(t_i) = (K_2 - K_1) N_{\text{tot}} - L_{\text{tranche}}(t_i).
+\end{equation}
+
+La valeur actualisée de la jambe premium s'écrit
+\begin{equation}
+\text{JF}(s) = s \sum_{i=1}^m \delta_i    \mathbb{E}^{\mathbb{P}^\ast}[ N_{t_i} N_{\text{restant}}(t_i)],
+\end{equation}
+où $\delta_i = t_i - t_{i-1}$ est la fraction d'année entre deux paiements (typiquement $\Delta t_i = 0.25$
+pour une fréquence trimestrielle) et $N_{t_i} = e^{-\int_0^{t_i} r(s)ds}$ est le numéraire. En substituant
+l'expression du notionnel restant, nous obtenons
+\begin{equation}
+\text{JF}(s) = s \sum_{i=1}^m \delta_i   \mathbb{E}^{\mathbb{P}^\ast}[N_{t_i}] \left[(K_2 - K_1) N_{\text{tot}} - \mathbb{E}^{\mathbb{P}^*}[L_{\text{tranche}}(t_i)]\right].
+\end{equation}
+
+\subsubsection{Jambe protection}
+
+Le vendeur de protection s'engage à compenser les pertes subies par la tranche. Lorsqu'un défaut
+survient dans le portefeuille et que la perte cumulée du portefeuille atteint ou dépasse le point 
+d'attachement de la tranche, le vendeur effectue un paiement correspondant à l'augmentation de la 
+perte de la tranche. La valeur actualisée de la jambe protection s'exprime comme
+\begin{equation}
+\text{JV} = \mathbb{E}^{\mathbb{P}^\ast}\left[\int_0^T N_t \, dL_{\text{tranche}}(t)\right],
+\end{equation}
+où $dL_{\text{tranche}}(t)$ représente l'incrément de perte de la tranche à l'instant $t$. En pratique, cette intégrale est approchée par une somme discrète sur les dates d'observation :
+\begin{equation}
+\text{JV} \approx \sum_{i=1}^m  \mathbb{E}^{\mathbb{P}^\ast}[ N_{t_i}(L_{\text{tranche}}(t_i) - L_{\text{tranche}}(t_{i-1}))].
+\end{equation}
+Cette expression montre que la valeur de la jambe protection dépend des variations incrémentales 
+de la perte espérée de la tranche entre les dates successives.
+
+\subsubsection{Spread équitable}
+
+Le spread équitable $s^*$ de la tranche est déterminé par la condition d'absence d'arbitrage imposant l'égalité entre les deux jambes :
+\begin{equation}
+\text{PF}(s^*) = \text{JV}.
+\end{equation}
+En explicitant cette condition et en isolant $s^*$, nous obtenons
+\begin{equation}
+s^* \approx \frac{\sum_{i=1}^m  \mathbb{E}^{\mathbb{P}^\ast}[N_{t_i} (L_{\text{tranche}}(t_i) - L_{\text{tranche}}(t_{i-1}))]}{\sum_{i=1}^m \delta_i  \mathbb{E}^{\mathbb{P}^\ast}[N_{t_i}] [(K_2 - K_1) N_{\text{tot}} - \mathbb{E}^{\mathbb{P}^\ast}[L_{\text{tranche}}(t_i)]]}.
+\end{equation}
