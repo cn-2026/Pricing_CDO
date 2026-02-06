@@ -47,18 +47,18 @@ Or en remarquant qu'aucune information lié à $\{ \tau > T \}$ n'est dans $\mat
     & = \mathbb{1}_{\{t < \tau \}} (1 - \mathbb{E}[\mathbb{1}_{\{ \tau > T\}} \mid \mathcal{F}_t ]) \\
     & = \mathbb{1}_{\{t < \tau \}} (1 - \mathbb{P}( \tau > T \mid \mathcal{F}_t ))
 \end{align*}
-Finalement en posant $f(t, u) = \mathbb{P}(\tau > u \mid \mathcal{F}_t)$, nous obtenons l'équation
+Finalement en posant $f(t, u) = \mathbb{P}(\tau > u \mid \mathcal{F}_t)$, nous obtenons l'équation suivante :
 \begin{equation}
     1 - f(t,T) = \int_t^T \lambda_u \, f(t,u) \, du 
 \end{equation}
-Pouvant être dérivée pour obtenir le problème de Cauchy
+Et en dérivant l'équation précédente nous obtenons le problème de Cauchy :
 \begin{equation}
     \begin{cases}
         \partial_u f(t,u) = - \lambda_u f(t,u) \\
         f(t,t) = 1
     \end{cases}
 \end{equation}
-Et la solution de ce problème est donnée par :
+La solution de ce problème est donnée par :
 \begin{equation}\label{eq:poisson_jump}
     \mathbb{P}(\tau > T \mid \mathcal{F}_t) = \exp\left(- \int_t^T \lambda_u \, du \right), \quad \text{p.s.}
 \end{equation}
@@ -116,12 +116,11 @@ En égalisant les deux termes nous obtenons le \emph{fair spread} qui satisfait 
     s^\ast = (1 - R) \lambda
 \end{equation}
 
-En pratique, l'intensité $\lambda(t)$ est déterminée à partir de la notation de crédit 
-via des tables historiques de taux de défaut par classe de notation. Le calcul du 
-spread s'effectue ensuite par simulation Monte Carlo : on génère des trajectoires du 
-processus de Poisson non-homogène d'intensité $\lambda(t)$ pour obtenir des 
-réalisations du temps de défaut, puis on calcule la moyenne empirique des flux 
-actualisés sur l'ensemble des simulations.
+En pratique, il existe deux manière de procéder pour calibrer le modèle à intensité : soit en utilisant les
+spreads de marché des CDS pour en déduire l'intensité de défaut, soit en modélisant directement l'intensité
+comme un processus stochastique et en calibrant ses paramètres à partir de données historiques ou de prix
+de marché. Dans le premier cas, la probabilité de défaut est alors sous la mesure risque neutre, tandis que
+dans le second nous travaillons sous la mesure historique.
 
 \subsection{Défauts corrélés}
 
@@ -130,9 +129,7 @@ actualisés sur l'ensemble des simulations.
 La valorisation des tranches de CDO synthétiques requiert la modélisation de la 
 distribution jointe des temps de défaut $\tau_1, \tau_2, \ldots, \tau_n$ du 
 portefeuille. Les distributions marginales $F_i(t) = \mathbb{P}^*(\tau_i \leq t)$ 
-étant connues, il reste à spécifier la structure de dépendance.
-
-Le théorème de Sklar stipule qu'il existe une fonction de copule $C : [0,1]^n \to [0,1]$ 
+étant connues, il reste à spécifier la structure de dépendance. Le théorème de Sklar stipule qu'il existe une fonction de copule $C : [0,1]^n \to [0,1]$ 
 telle que
 \begin{equation}
 F(\tau_1, \tau_2, \ldots, \tau_n) = C(F_1(\tau_1), F_2(\tau_2), \ldots, F_n(\tau_n)).
