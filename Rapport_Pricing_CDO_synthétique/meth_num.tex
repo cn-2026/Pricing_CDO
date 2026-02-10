@@ -48,38 +48,104 @@ Le modèle CIR ne possède pas de solution intégrale simple, mais il est possib
 
 
 \subsection{Calibration des copules}
+\subsection{Calibration de la copule gaussienne}
 
-\subsubsection{Copule gaussienne à un facteur}
+Nous calibrons une copule gaussienne à un facteur à partir des spreads observés sur les
+10 dates du jeu de données. L’objectif est de choisir le paramètre de dépendance \(\rho\)
+de manière à reproduire au mieux, pour chaque date, les spreads des différentes tranches.
+Pour une date donnée, on cherche
+\[
+\rho^\star
+= \arg\min_{\rho \in [\rho_{\min},\rho_{\max}]} \mathcal{L}(\rho),
+\]
+où \(\mathcal{L}\) mesure l’écart entre spreads de marché et spreads du modèle. Dans notre
+implémentation, la fonction objectif est la RMSE sur les \(Q\) tranches :
+\[
+\mathcal{L}(\rho)
+= \sqrt{\frac{1}{Q}\sum_{q=1}^Q \big(s^{\mathrm{mod}}_q(\rho)-s^{\mathrm{mkt}}_q\big)^2 }.
+\]
 
-Nous cherchons à calibrer une copule gaussienne à partir des spreads
-de CDS observés sur les 10 dates fournies. Pour cela nous allons 
-chercher à minimiser la norme euclidienne entre les spreads observés et les 
-spreads calculés à partir de la copule gaussienne. Nous allons utiliser
-la fonction d'optimisation de Scipy \texttt{scipy.optimize.minimize} pour 
-trouver les paramètres de la copule gaussienne qui minimisent cette norme.
+Afin de simplifier le problème, nous adoptons l’approximation d’un portefeuille homogène :
+toutes les paires de noms partagent la même corrélation \(\rho\), ce qui conduit à la matrice
+équicorrélée
+\[
+\Sigma(\rho)=
+\begin{pmatrix}
+1 & \rho & \cdots & \rho \\
+\rho & 1 & \cdots & \rho \\
+\vdots & \vdots & \ddots & \vdots \\
+\rho & \rho & \cdots & 1
+\end{pmatrix}.
+\]
+On ne calibre alors qu’un seul paramètre.
 
-Afin de simplifier le problème d'optimisation, dans une première étape nous
-allons supposer que les corrélations entre les différents CDS sont toutes 
-égales, c'est à dire que la matrice de corrélation est de la forme
-\begin{equation}
-\Sigma = \begin{pmatrix}1 & \rho & \rho & \dots & \rho \\
-\rho & 1 & \rho & \dots & \rho \\
-\rho & \rho & 1 & \dots & \rho \\
-\vdots & \vdots & \vdots & \ddots & \vdots \\
-\rho & \rho & \rho & \dots & 1 \\
-\end{pmatrix}
-\end{equation}
-où $\rho$ est le paramètre de corrélation implicite que nous allons calibrer. Nous
-sommes donc dans le cas de l'approximation d'un portfolio homogène.
+Pour une valeur candidate \(\rho\), on génère des scénarios corrélés via
+\(X \sim \mathcal{N}(0,\Sigma(\rho))\), puis on pose \(U_i=\Phi(X_i)\). Les temps de défaut
+sont obtenus par inversion dans un modèle à intensité constante :
+\[
+\tau_i = \frac{-\ln(U_i)}{\lambda},
+\qquad
+\lambda \approx \frac{s_{\text{index}}}{1-R},
+\]
+où \(s_{\text{index}}\) est le spread de l’indice CDS et \(R\) le taux de recouvrement fixé.
+Pour limiter la variabilité numérique entre deux évaluations de \(\mathcal{L}(\rho)\), on fixe
+la graine aléatoire lors des simulations.
 
-Pour le trouver nous procédons en deux temps, premièrement nous utilisons une
-grille de paramètres sur laquelle nous calculons les spreads pour chaque tranche
-par une méthode de Monte-Carlo en échantillonnant des temps de défauts du vecteur
-aléatoire $(\tau_1, \dots, \tau_n)$. Puis sur une région plus restreinte nous
-utilisons l'algorithme de Broyden-Fletcher-Goldfarb-Shanno (BFGS) pour trouver
-le minimum de la norme euclidienne entre les spreads observés et les spreads calculés 
-à partir de la copule gaussienne. Il s'agit d'une méthode approchée de la méthode
-de Newton dite de "quasi-Newton".
+À partir des temps de défaut simulés, on calcule la perte cumulée du portefeuille aux dates
+de paiement, puis la perte de tranche via les points d’attachement/détachement. Le spread
+modèle \(s^{\mathrm{mod}}_q(\rho)\) est ensuite déterminé par la condition d’absence d’arbitrage
+(égalité entre jambe de protection et jambe premium), en approchant les intégrales par une
+somme discrète sur les dates de paiement.
+
+L’optimisation est réalisée en deux étapes pour chaque date : (i) une recherche sur une grille
+\(\rho \in [0.01,0.99]\) afin d’obtenir une initialisation \(\rho_{\text{init}}\), puis (ii) un
+raffinement local par \texttt{scipy.optimize.minimize} avec l’algorithme \texttt{L-BFGS-B}
+sous la contrainte \(\rho \in [0.01,0.99]\), afin d’obtenir \(\rho^\star\). Enfin, pour réduire
+le coût numérique, les valeurs calibrées et les spreads modèle associés sont sauvegardés afin
+d’éviter de relancer l’ensemble des calculs à chaque exécution.
+
+\subsection{Calibration de la copule de Student (t-copula)}
+
+Afin de mieux représenter les défauts simultanés observés en période de stress, nous
+remplaçons la copule gaussienne par une copule de Student. Ce modèle ajoute un paramètre
+\(\nu>0\) (degrés de liberté) qui contrôle l’épaisseur des queues : lorsque \(\nu\) est faible,
+la dépendance extrême est plus marquée, et lorsque \(\nu \to \infty\), on retrouve le cas gaussien.
+
+Comme précédemment, l’objectif est de reproduire les spreads de marché des \(Q\) tranches à
+chaque date. La calibration consiste désormais à estimer \(\rho\) et \(\nu\) en minimisant
+\[
+(\rho^\star,\nu^\star)
+= \arg\min_{(\rho,\nu)\in\mathcal{D}} \mathcal{L}(\rho,\nu),
+\qquad
+\mathcal{L}(\rho,\nu)
+= \sqrt{\frac{1}{Q}\sum_{q=1}^Q\big(s_q^{\mathrm{mod}}(\rho,\nu)-s_q^{\mathrm{mkt}}\big)^2},
+\]
+où \(\mathcal{D}\) est un domaine borné (dans notre implémentation,
+\(\rho\in[0.01,0.99]\) et \(\nu\in[2.01,80]\)).
+
+On conserve l’hypothèse d’un portefeuille homogène via la matrice équicorrélée \(\Sigma(\rho)\).
+Pour simuler la t-copule, on génère d’abord un vecteur gaussien équicorrélé \((Z_i)_{i=1}^n\)
+à l’aide d’un facteur commun \(Y\sim\mathcal{N}(0,1)\) et de termes idiosyncratiques
+\(\varepsilon_i\sim\mathcal{N}(0,1)\) indépendants :
+\[
+Z_i=\sqrt{\rho}\,Y+\sqrt{1-\rho}\,\varepsilon_i.
+\]
+On introduit ensuite une variable de mélange commune \(S\sim\chi^2(\nu)\), indépendante, et l’on pose
+\[
+T_i=\frac{Z_i}{\sqrt{S/\nu}},
+\qquad
+U_i=t_\nu(T_i),
+\]
+où \(t_\nu\) désigne la fonction de répartition de la Student univariée à \(\nu\) degrés de liberté.
+Le vecteur \((U_i)\) suit alors une copule de Student de paramètres \((\rho,\nu)\). Les temps de défaut
+sont obtenus en appliquant la même transformation marginale que dans le cas gaussien.
+
+Comme la fonction \(\mathcal{L}(\rho,\nu)\) est estimée par Monte-Carlo, on fixe la graine aléatoire afin
+de limiter la variabilité numérique entre deux évaluations. La recherche des paramètres est réalisée en
+deux étapes : une exploration sur grille pour initialiser \((\rho_{\mathrm{init}},\nu_{\mathrm{init}})\),
+puis un raffinement local via \texttt{scipy.optimize.minimize} avec l’algorithme \texttt{L-BFGS-B} sous
+contraintes, conduisant à \((\rho^\star,\nu^\star)\).
+
 
 \subsubsection{Modèle de Vasicek}
 

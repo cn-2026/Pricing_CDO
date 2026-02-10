@@ -84,3 +84,73 @@ ce qui expliquerait les difficultés de calibration du modèle gaussien.
 \caption{Correlation implicite par tranche pour la copule gaussienne à un facteur}
 \label{fig:smile_gaussian_1fact}
 \end{figure}
+
+\subsubsection{Copule de Student}
+
+Nous présentons ici les résultats obtenus avec une copule de Student à un facteur, calibrée sur les
+données décrites en section (\ref{subsubsec:data}). Par construction, la copule de Student introduit une
+dépendance de queue (via le paramètre \(\nu\)), ce qui vise à mieux représenter les épisodes de stress où
+des défauts peuvent survenir de manière plus simultanée que dans le cadre gaussien.
+
+Les spreads de tranches obtenus après calibration sont présentés Figure (\ref{fig:calibration_copule_student}).
+On observe que la tranche equity (0--3\%) est correctement reproduite par le modèle, ce qui est cohérent
+avec le fait que cette tranche est principalement sensible aux premiers défauts. En revanche, le modèle
+reste trop éloigné des spreads observés sur les tranches mezzanine et senior : la tranche 3--7\% est
+surévaluée sur l’ensemble de la période, et l’écart est encore plus marqué pour la tranche 7--15\% dont
+les spreads de marché sont très faibles sur la période considérée, alors que le modèle reste à des niveaux
+élevés. La tranche 15--100\% est également surestimée, même si l’écart tend à se réduire en fin d’échantillon.
+Ces résultats suggèrent que, malgré l’ajout de dépendance de queue, l’hypothèse de portefeuille homogène à
+un facteur demeure trop restrictive pour ajuster simultanément l’ensemble des tranches.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{images/Spread_tranches Student.png}
+\caption{Comparaison pour chaque tranche des spreads observés et calculés par copule de Student à un facteur}
+\label{fig:calibration_copule_student}
+\end{figure}
+
+La Figure (\ref{fig:corr_copule_student}) montre l’évolution de la corrélation implicite calibrée pour la
+copule de Student. On constate que \(\rho\) prend des valeurs élevées sur une grande partie des dates
+(autour de \(0.7\) en début de période), avant de diminuer nettement sur les derniers points (autour de \(0.4\)).
+Comme dans le cas gaussien, cette corrélation élevée reflète le fait que, dans une calibration globale
+à un paramètre, le modèle mobilise une dépendance forte pour générer suffisamment de pertes communes afin
+d’expliquer la structure des spreads de tranches. Le passage à une copule de Student ne supprime donc pas
+la nécessité d’une corrélation implicite élevée lorsque la calibration reste contrainte par une structure
+homogène.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/Correlation Student.png}
+\caption{Evolution du coefficient de corrélation implicite pour la copule de Student à un facteur}
+\label{fig:corr_copule_student}
+\end{figure}
+
+La Figure (\ref{fig:smile_student_1fact}) met en évidence un smile de corrélation implicite par tranche,
+analogue à celui observé dans le cadre gaussien. La corrélation implicite est élevée pour la tranche
+equity (attachement \(0\%\)) et atteint des valeurs très fortes au voisinage de l’attachement \(3\%\),
+puis chute fortement pour l’attachement \(7\%\) avant de remonter pour l’attachement \(15\%\).
+Ce profil indique que la dépendance requise par le marché n’est pas capturable par une unique corrélation
+\(\rho\) : chaque tranche « demande » un niveau différent de dépendance afin de reproduire son spread, ce
+qui se traduit par un smile persistant.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/Smile Correlation_ Student.png}
+\caption{Smile de corrélation implicite par tranche pour la copule de Student à un facteur}
+\label{fig:smile_student_1fact}
+\end{figure}
+
+Enfin, la Figure (\ref{fig:smile_moyen_student}) compare le smile moyen (moyenne des corrélations implicites
+par attachement) à la corrélation globale moyenne issue de la calibration. On observe que la corrélation
+globale moyenne ne reflète pas correctement la structure en smile, en particulier la forte exigence de
+dépendance sur les tranches basses et la remontée sur les tranches plus seniors. Cela confirme que, même
+avec une copule de Student, une spécification plus flexible est nécessaire pour améliorer l’ajustement des
+tranches mezzanine et senior (par exemple une structure sectorielle, une copule hiérarchique, ou des
+mélanges de copules).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/SMILE moyen_ Student.png}
+\caption{Smile moyen et corrélation globale moyenne pour la copule de Student à un facteur}
+\label{fig:smile_moyen_student}
+\end{figure}
