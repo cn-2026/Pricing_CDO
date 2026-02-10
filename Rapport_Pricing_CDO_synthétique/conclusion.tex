@@ -1,1 +1,23 @@
 \section{Conclusion}
+
+Dans ce rapport, nous avons mis en place un cadre de modélisation pour la tarification des tranches de CDO synthétiques.
+Après avoir rappelé le cadre risque-neutre et les éléments de base du marché du crédit (CDS, jambe premium et jambe protection),
+nous avons présenté des modèles de dépendance des défauts via les copules (gaussienne et de Student) ainsi qu’un cadre à intensité.
+Nous avons ensuite décrit une procédure numérique de calibration et appliqué ces méthodes aux tranches du CDX NA IG Series 19
+(maturité 5 ans) sur dix dates de marché issues de \cite{OhkrinXu}.
+
+Les résultats numériques confirment une limite classique des approches à un facteur sous hypothèse de portefeuille homogène :
+une calibration globale par un seul paramètre de corrélation ne permet pas d’ajuster correctement toutes les tranches simultanément.
+La copule gaussienne reproduit la tranche equity mais présente des écarts importants sur les tranches mezzanine et senior, et
+l’apparition d’un smile de corrélation implicite indique que la dépendance demandée par le marché varie selon le niveau de subordination,
+phénomène bien documenté dans la littérature sur les tranches d’indices de crédit \cite{OhkrinXu}. Le passage à la copule de Student
+apporte davantage de flexibilité via le paramètre de degrés de liberté, mais dans notre paramétrisation simple il subsiste des écarts
+significatifs sur les tranches mezzanine et senior. Cela suggère que la structure de dépendance est plus complexe que ce que capture un
+modèle homogène à un seul facteur.
+
+Ces constats motivent la poursuite du projet. Dans une deuxième partie, nous chercherons à améliorer l’ajustement des tranches mezzanine
+et senior en enrichissant la structure de dépendance. D’une part, nous testerons des combinaisons de copules, comme proposé dans
+\cite{OhkrinXu}, afin d’accroître la flexibilité du modèle et de mieux représenter les comportements de queue. D’autre part, nous
+étudierons un modèle à intensité, notamment avec une composante systémique commune, dans l’esprit des modèles de CDO basés sur intensités
+et facteurs de marché \cite{DuffieGarleanu}. L’objectif sera de comparer ces extensions sur les mêmes données, en termes de qualité de
+calibration, de stabilité et de coût numérique.
