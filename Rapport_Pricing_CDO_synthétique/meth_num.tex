@@ -1,7 +1,17 @@
 \section{Méthodes numériques}
 
 \subsection{Simulation des taux d'intérêts}
-La simulation des trajectoires du taux instantané $r_t$ est une étape essentielle pour la valorisation des produits financiers et l’étude des dynamiques du numéraire. Nous présentons ci-dessous les méthodes de simulation pour les modèles de Vasicek et de CIR.
+
+\paragraph{Principe général de la simulation et différence entre les modèles.}
+
+\vspace{0.5cm}
+
+Dans les deux cas, les formules utilisées pour simuler $r_{t+\Delta t}$ correspondent à l’échantillonnage de la loi de transition exacte du taux court, et non à un schéma de discrétisation de type Euler.
+
+Dans le modèle de Vasicek, l’équation étant linéaire, le processus est gaussien et la loi conditionnelle de $r_{t+\Delta t}$ sachant $r_t$ est normale, ce qui conduit à une formule de simulation explicite.  
+Dans le modèle CIR, le coefficient de diffusion dépend de $\sqrt{r_t}$, l’équation n’est plus linéaire et la loi conditionnelle de transition est une loi du $\chi^2$ non centrale.
+
+La différence entre les expressions de simulation provient donc directement de la structure des équations différentielles stochastiques des deux modèles.
 
 \subsubsection{Simulation du modèle de Vasicek}
 
@@ -20,6 +30,39 @@ où $Z_t \sim \mathcal{N}(0,1)$ est une variable aléatoire normale standard ind
     \item Générer des variables normales $Z_0, Z_1, \dots$.
     \item Calculer itérativement $r_{t+\Delta t}$ à partir de $r_t$ en utilisant la formule ci-dessus.
 \end{enumerate}
+
+
+\medskip
+\paragraph{Calcul du numéraire dans le modèle de Vasicek}
+
+On rappelle que le numéraire associé au marché monétaire est défini par
+\begin{equation}
+    B_t=\exp\left(\int_0^t r_s\,ds\right).
+\end{equation}
+
+Dans le cadre du modèle de Vasicek, le processus $(r_t)_{t\geq 0}$ est un processus gaussien à trajectoires continues et vérifie la propriété d’intégrabilité
+\[
+\int_0^T |r_s|\,ds<\infty \quad \text{p.s.}
+\]
+comme établi dans la section précédente.
+
+Par conséquent, pour toute trajectoire simulée $(r_{t_k})_{k=0,\ldots,N}$, une approximation naturelle du numéraire s’obtient par une discrétisation de l’intégrale :
+\begin{equation}
+    B_{t_{k+1}}
+    =
+    B_{t_k}\exp\!\left(r_{t_k}\Delta t\right),
+    \qquad B_0=1,
+\end{equation}
+où $\Delta t=t_{k+1}-t_k$.
+
+Cette formule découle directement de la définition intégrale de $B_t$ et du fait que, pour des trajectoires continues, la somme de Riemann
+\[
+\sum_{k=0}^{N-1} r_{t_k}\Delta t
+\]
+converge presque sûrement vers $\int_0^T r_s\,ds$ lorsque $\Delta t\to 0$.
+
+Ainsi, la simulation exacte du taux court $r_t$ dans le modèle de Vasicek permet de calculer de manière cohérente le numéraire par simple intégration numérique le long des trajectoires simulées.
+
 
 
 \subsubsection{Simulation du modèle CIR}
@@ -43,171 +86,78 @@ Le modèle CIR ne possède pas de solution intégrale simple, mais il est possib
     \item Le modèle CIR garantit la positivité du taux, mais nécessite la génération de variables $\chi^2$ non centrales.
 \end{itemize}
 
+\medskip
+\paragraph{Calcul du numéraire dans le modèle CIR}
 
-
-
-\subsection{Calibration de la copule gaussienne}
-
-Nous calibrons une copule gaussienne à un facteur à partir des spreads observés sur les
-10 dates du jeu de données. L’objectif est de choisir le paramètre de dépendance \(\rho\)
-de manière à reproduire au mieux, pour chaque date, les spreads des différentes tranches.
-Pour une date donnée, on cherche
-\[
-\rho^\star
-= \arg\min_{\rho \in [\rho_{\min},\rho_{\max}]} \mathcal{L}(\rho),
-\]
-où \(\mathcal{L}\) mesure l’écart entre spreads de marché et spreads du modèle. Dans notre
-implémentation, la fonction objectif est la RMSE sur les \(Q\) tranches :
-\[
-\mathcal{L}(\rho)
-= \sqrt{\frac{1}{Q}\sum_{q=1}^Q \big(s^{\mathrm{mod}}_q(\rho)-s^{\mathrm{mkt}}_q\big)^2 }.
-\]
-
-Afin de simplifier le problème, nous adoptons l’approximation d’un portefeuille homogène :
-toutes les paires de noms partagent la même corrélation \(\rho\), ce qui conduit à la matrice
-équicorrélée
-\[
-\Sigma(\rho)=
-\begin{pmatrix}
-1 & \rho & \cdots & \rho \\
-\rho & 1 & \cdots & \rho \\
-\vdots & \vdots & \ddots & \vdots \\
-\rho & \rho & \cdots & 1
-\end{pmatrix}.
-\]
-On ne calibre alors qu’un seul paramètre.
-
-Pour une valeur candidate \(\rho\), on génère des scénarios corrélés via
-\(X \sim \mathcal{N}(0,\Sigma(\rho))\), puis on pose \(U_i=\Phi(X_i)\). Les temps de défaut
-sont obtenus par inversion dans un modèle à intensité constante :
-\[
-\tau_i = \frac{-\ln(U_i)}{\lambda},
-\qquad
-\lambda \approx \frac{s_{\text{index}}}{1-R},
-\]
-où \(s_{\text{index}}\) est le spread de l’indice CDS et \(R\) le taux de recouvrement fixé.
-Pour limiter la variabilité numérique entre deux évaluations de \(\mathcal{L}(\rho)\), on fixe
-la graine aléatoire lors des simulations.
-
-À partir des temps de défaut simulés, on calcule la perte cumulée du portefeuille aux dates
-de paiement, puis la perte de tranche via les points d’attachement/détachement. Le spread
-modèle \(s^{\mathrm{mod}}_q(\rho)\) est ensuite déterminé par la condition d’absence d’arbitrage
-(égalité entre jambe de protection et jambe premium), en approchant les intégrales par une
-somme discrète sur les dates de paiement.
-
-L’optimisation est réalisée en deux étapes pour chaque date : (i) une recherche sur une grille
-\(\rho \in [0.01,0.99]\) afin d’obtenir une initialisation \(\rho_{\text{init}}\), puis (ii) un
-raffinement local par \texttt{scipy.optimize.minimize} avec l’algorithme \texttt{L-BFGS-B}
-sous la contrainte \(\rho \in [0.01,0.99]\), afin d’obtenir \(\rho^\star\). Enfin, pour réduire
-le coût numérique, les valeurs calibrées et les spreads modèle associés sont sauvegardés afin
-d’éviter de relancer l’ensemble des calculs à chaque exécution.
-
-
-
-\subsubsection{Modèle de Vasicek}
-
-Dans le cas d'un portefolio homogène, grand et suffisament diversifié, il est possible
-de faire l'approximation de Vasicek ou LHP (\emph{Large Homogeneous Portfolio}) qui permet de calculer les pertes espérées et donc
-les spreads pour chaque tranche en fonction de la corrélation implicite. Pour cela on considère un portefeuille de crédit homogène de taille $n$.
-La dépendance des défauts est décrite par un modèle gaussien à un facteur :
+Dans le modèle de Cox--Ingersoll--Ross, le numéraire est également défini par
 \begin{equation}
-    X_i = \sqrt{\rho}\,Z + \sqrt{1-\rho}\,\varepsilon_i,
+    B_t=\exp\left(\int_0^t r_s\,ds\right).
 \end{equation}
-où $Z,\varepsilon_i \sim \mathcal N(0,1)$ sont indépendantes et $\rho \in (0,1)$. 
 
-\noindent Un défaut avant la date $t$ est défini par
-\begin{equation}
-\tau_i \le t
-\quad \Longleftrightarrow \quad
-X_i \le \Phi^{-1}\big(p(t)\big),
-\end{equation}
-où $p(t)$ est la probabilité de défaut marginale.
+Sous les hypothèses du modèle, et en particulier sous la condition de Feller $2ab\geq \sigma^2$, le processus $r_t$ est strictement positif et à trajectoires continues.
 
-\noindent Conditionnellement à $Z=z$, on a
-\begin{equation}
-X_i \mid Z=z \sim \mathcal N(\sqrt{\rho}\,z,\,1-\rho),
-\end{equation}
-d’où
-\begin{equation}
-q(z,t)
-:= \mathbb P(\tau_i \le t \mid Z=z)
-=
-\Phi\!\left(
-\frac{\Phi^{-1}(p(t)) - \sqrt{\rho}\,z}{\sqrt{1-\rho}}
-\right).
-\end{equation}
-Or nous savons que pour un notionnel unitaire et un taux de recouvrement constant $R$ la perte du portefeuille est
-\begin{equation}
-L_N(t)
-=
-(1-R)\,\frac{1}{N}
-\sum_{i=1}^N \mathbf 1_{\{\tau_i \le t\}}.
-\end{equation}
-Et conditionnellement à $Z=z$, les variables
-$\mathbf 1_{\{\tau_i \le t\}}$ sont i.i.d.\ de loi
-$\mathrm{Bernoulli}(q(z,t))$.
-Ainsi par la loi forte des grands nombres,
-\begin{equation}
-L_N(t)
-\xrightarrow[N\to\infty]{\text{p.s.}}
-L(t)
-:=
-(1-R)\,q(Z,t).
-\end{equation}
-Nous avons ainsi trouvé une formule explicite pour la perte du portefolio
-entier en fonction de la corrélation implicite $\rho$. Pour calculer l'espérance sur $Z$
-totale ou bien sur une tranche nous pourrons par exemple utiliser une méthode de
-quadrature de Gauss-Hermite.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{images/LHP_corr.png}
-\caption{Perte du portefeuille en fonction de la corrélation implicite $\rho$ pour différentes tranches du CDX NA IG Series 19}
-\label{fig:vasicek}
-\end{figure}
-
-
-\subsection{Calibration de la copule de Student (t-copula)}
-
-Afin de mieux représenter les défauts simultanés observés en période de stress, nous
-remplaçons la copule gaussienne par une copule de Student. Ce modèle ajoute un paramètre
-\(\nu>0\) (degrés de liberté) qui contrôle l’épaisseur des queues : lorsque \(\nu\) est faible,
-la dépendance extrême est plus marquée, et lorsque \(\nu \to \infty\), on retrouve le cas gaussien.
-
-Comme précédemment, l’objectif est de reproduire les spreads de marché des \(Q\) tranches à
-chaque date. La calibration consiste désormais à estimer \(\rho\) et \(\nu\) en minimisant
+On a donc, pour tout horizon fini $T$,
 \[
-(\rho^\star,\nu^\star)
-= \arg\min_{(\rho,\nu)\in\mathcal{D}} \mathcal{L}(\rho,\nu),
-\qquad
-\mathcal{L}(\rho,\nu)
-= \sqrt{\frac{1}{Q}\sum_{q=1}^Q\big(s_q^{\mathrm{mod}}(\rho,\nu)-s_q^{\mathrm{mkt}}\big)^2},
+\int_0^T r_s\,ds<\infty \quad \text{p.s.}
 \]
-où \(\mathcal{D}\) est un domaine borné (dans notre implémentation,
-\(\rho\in[0.01,0.99]\) et \(\nu\in[2.01,80]\)).
+ce qui garantit que le numéraire est bien défini et strictement positif.
 
-On conserve l’hypothèse d’un portefeuille homogène via la matrice équicorrélée \(\Sigma(\rho)\).
-Pour simuler la t-copule, on génère d’abord un vecteur gaussien équicorrélé \((Z_i)_{i=1}^n\)
-à l’aide d’un facteur commun \(Y\sim\mathcal{N}(0,1)\) et de termes idiosyncratiques
-\(\varepsilon_i\sim\mathcal{N}(0,1)\) indépendants :
-\[
-Z_i=\sqrt{\rho}\,Y+\sqrt{1-\rho}\,\varepsilon_i.
-\]
-On introduit ensuite une variable de mélange commune \(S\sim\chi^2(\nu)\), indépendante, et l’on pose
-\[
-T_i=\frac{Z_i}{\sqrt{S/\nu}},
-\qquad
-U_i=t_\nu(T_i),
-\]
-où \(t_\nu\) désigne la fonction de répartition de la Student univariée à \(\nu\) degrés de liberté.
-Le vecteur \((U_i)\) suit alors une copule de Student de paramètres \((\rho,\nu)\). Les temps de défaut
-sont obtenus en appliquant la même transformation marginale que dans le cas gaussien.
+Comme dans le cas de Vasicek, le calcul du numéraire repose sur une approximation de l’intégrale par une discrétisation temporelle. Pour une grille régulière $(t_k)$, on pose
+\begin{equation}
+    B_{t_{k+1}}
+    =
+    B_{t_k}\exp\!\left(r_{t_k}\Delta t\right),
+    \qquad B_0=1.
+\end{equation}
 
-Comme la fonction \(\mathcal{L}(\rho,\nu)\) est estimée par Monte-Carlo, on fixe la graine aléatoire afin
-de limiter la variabilité numérique entre deux évaluations. La recherche des paramètres est réalisée en
-deux étapes : une exploration sur grille pour initialiser \((\rho_{\mathrm{init}},\nu_{\mathrm{init}})\),
-puis un raffinement local via \texttt{scipy.optimize.minimize} avec l’algorithme \texttt{L-BFGS-B} sous
-contraintes, conduisant à \((\rho^\star,\nu^\star)\).
+Cette approximation est justifiée par la continuité presque sûre de $r_t$, qui assure la convergence de la somme de Riemann vers l’intégrale stochastique déterministe
+\[
+\int_0^t r_s\,ds.
+\]
+
+Le fait que la simulation du processus CIR soit effectuée à l’aide de sa loi exacte à chaque pas de temps ne modifie pas ce calcul : l’intégrale du taux court ne possède pas de loi fermée simple et doit être évaluée numériquement le long des trajectoires simulées.
+
+
+
+
+\subsection{Calibration des copules}
+
+Nous cherchons à calibrer une copule gaussienne à partir des spreads
+de CDS observés sur les 10 dates fournies. Pour cela nous allons 
+chercher à minimiser la norme euclidienne entre les spreads observés et les 
+spreads calculés à partir de la copule gaussienne. Nous allons utiliser
+la fonction d'optimisation de Scipy \texttt{scipy.optimize.minimize} pour 
+trouver les paramètres de la copule gaussienne qui minimisent cette norme.
+
+Afin de simplifier le problème d'optimisation, dans une première étape nous
+allons supposer que les corrélations entre les différents CDS sont toutes 
+égales, c'est à dire que la matrice de corrélation est de la forme
+\begin{equation}
+\Sigma = \begin{pmatrix}1 & \rho & \rho & \dots & \rho \\
+\rho & 1 & \rho & \dots & \rho \\
+\rho & \rho & 1 & \dots & \rho \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+\rho & \rho & \rho & \dots & 1 \\
+\end{pmatrix}
+\end{equation}
+où $\rho$ est le paramètre de corrélation implicite que nous allons calibrer. Nous
+sommes donc dans le cas de l'approximation d'un portfolio homogène.
+
+Pour le trouver nous procédons en deux temps, premièrement nous utilisons une
+grille de paramètres sur laquelle nous calculons les spreads pour chaque tranche
+par une méthode de Monte-Carlo en échantillonnant des temps de défauts du vecteur
+aléatoire $(\tau_1, \dots, \tau_n)$. Puis sur une région plus restreinte nous
+utilisons l'algorithme de Broyden-Fletcher-Goldfarb-Shanno (BFGS) pour trouver
+le minimum de la norme euclidienne entre les spreads observés et les spreads calculés 
+à partir de la copule gaussienne. Il s'agit d'une méthode approchée de la méthode
+de Newton dite de "quasi-Newton".
+
+Dans une recherche ultérieure nous pourrons appliquer ces méthodes à des problèmes
+d'optimisation en plus grande dimension en essayant de calibrer une matrice de corrélation
+non homogène ou bien d'autres types de copules comme celle de Student ou bien d'autres
+mixtures.
+
+
 
 
 
