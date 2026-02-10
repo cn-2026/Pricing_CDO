@@ -47,7 +47,6 @@ Le modèle CIR ne possède pas de solution intégrale simple, mais il est possib
 
 
 
-\subsection{Calibration des copules}
 \subsection{Calibration de la copule gaussienne}
 
 Nous calibrons une copule gaussienne à un facteur à partir des spreads observés sur les
@@ -104,47 +103,6 @@ sous la contrainte \(\rho \in [0.01,0.99]\), afin d’obtenir \(\rho^\star\). En
 le coût numérique, les valeurs calibrées et les spreads modèle associés sont sauvegardés afin
 d’éviter de relancer l’ensemble des calculs à chaque exécution.
 
-\subsection{Calibration de la copule de Student (t-copula)}
-
-Afin de mieux représenter les défauts simultanés observés en période de stress, nous
-remplaçons la copule gaussienne par une copule de Student. Ce modèle ajoute un paramètre
-\(\nu>0\) (degrés de liberté) qui contrôle l’épaisseur des queues : lorsque \(\nu\) est faible,
-la dépendance extrême est plus marquée, et lorsque \(\nu \to \infty\), on retrouve le cas gaussien.
-
-Comme précédemment, l’objectif est de reproduire les spreads de marché des \(Q\) tranches à
-chaque date. La calibration consiste désormais à estimer \(\rho\) et \(\nu\) en minimisant
-\[
-(\rho^\star,\nu^\star)
-= \arg\min_{(\rho,\nu)\in\mathcal{D}} \mathcal{L}(\rho,\nu),
-\qquad
-\mathcal{L}(\rho,\nu)
-= \sqrt{\frac{1}{Q}\sum_{q=1}^Q\big(s_q^{\mathrm{mod}}(\rho,\nu)-s_q^{\mathrm{mkt}}\big)^2},
-\]
-où \(\mathcal{D}\) est un domaine borné (dans notre implémentation,
-\(\rho\in[0.01,0.99]\) et \(\nu\in[2.01,80]\)).
-
-On conserve l’hypothèse d’un portefeuille homogène via la matrice équicorrélée \(\Sigma(\rho)\).
-Pour simuler la t-copule, on génère d’abord un vecteur gaussien équicorrélé \((Z_i)_{i=1}^n\)
-à l’aide d’un facteur commun \(Y\sim\mathcal{N}(0,1)\) et de termes idiosyncratiques
-\(\varepsilon_i\sim\mathcal{N}(0,1)\) indépendants :
-\[
-Z_i=\sqrt{\rho}\,Y+\sqrt{1-\rho}\,\varepsilon_i.
-\]
-On introduit ensuite une variable de mélange commune \(S\sim\chi^2(\nu)\), indépendante, et l’on pose
-\[
-T_i=\frac{Z_i}{\sqrt{S/\nu}},
-\qquad
-U_i=t_\nu(T_i),
-\]
-où \(t_\nu\) désigne la fonction de répartition de la Student univariée à \(\nu\) degrés de liberté.
-Le vecteur \((U_i)\) suit alors une copule de Student de paramètres \((\rho,\nu)\). Les temps de défaut
-sont obtenus en appliquant la même transformation marginale que dans le cas gaussien.
-
-Comme la fonction \(\mathcal{L}(\rho,\nu)\) est estimée par Monte-Carlo, on fixe la graine aléatoire afin
-de limiter la variabilité numérique entre deux évaluations. La recherche des paramètres est réalisée en
-deux étapes : une exploration sur grille pour initialiser \((\rho_{\mathrm{init}},\nu_{\mathrm{init}})\),
-puis un raffinement local via \texttt{scipy.optimize.minimize} avec l’algorithme \texttt{L-BFGS-B} sous
-contraintes, conduisant à \((\rho^\star,\nu^\star)\).
 
 
 \subsubsection{Modèle de Vasicek}
@@ -209,6 +167,48 @@ quadrature de Gauss-Hermite.
 \label{fig:vasicek}
 \end{figure}
 
+
+\subsection{Calibration de la copule de Student (t-copula)}
+
+Afin de mieux représenter les défauts simultanés observés en période de stress, nous
+remplaçons la copule gaussienne par une copule de Student. Ce modèle ajoute un paramètre
+\(\nu>0\) (degrés de liberté) qui contrôle l’épaisseur des queues : lorsque \(\nu\) est faible,
+la dépendance extrême est plus marquée, et lorsque \(\nu \to \infty\), on retrouve le cas gaussien.
+
+Comme précédemment, l’objectif est de reproduire les spreads de marché des \(Q\) tranches à
+chaque date. La calibration consiste désormais à estimer \(\rho\) et \(\nu\) en minimisant
+\[
+(\rho^\star,\nu^\star)
+= \arg\min_{(\rho,\nu)\in\mathcal{D}} \mathcal{L}(\rho,\nu),
+\qquad
+\mathcal{L}(\rho,\nu)
+= \sqrt{\frac{1}{Q}\sum_{q=1}^Q\big(s_q^{\mathrm{mod}}(\rho,\nu)-s_q^{\mathrm{mkt}}\big)^2},
+\]
+où \(\mathcal{D}\) est un domaine borné (dans notre implémentation,
+\(\rho\in[0.01,0.99]\) et \(\nu\in[2.01,80]\)).
+
+On conserve l’hypothèse d’un portefeuille homogène via la matrice équicorrélée \(\Sigma(\rho)\).
+Pour simuler la t-copule, on génère d’abord un vecteur gaussien équicorrélé \((Z_i)_{i=1}^n\)
+à l’aide d’un facteur commun \(Y\sim\mathcal{N}(0,1)\) et de termes idiosyncratiques
+\(\varepsilon_i\sim\mathcal{N}(0,1)\) indépendants :
+\[
+Z_i=\sqrt{\rho}\,Y+\sqrt{1-\rho}\,\varepsilon_i.
+\]
+On introduit ensuite une variable de mélange commune \(S\sim\chi^2(\nu)\), indépendante, et l’on pose
+\[
+T_i=\frac{Z_i}{\sqrt{S/\nu}},
+\qquad
+U_i=t_\nu(T_i),
+\]
+où \(t_\nu\) désigne la fonction de répartition de la Student univariée à \(\nu\) degrés de liberté.
+Le vecteur \((U_i)\) suit alors une copule de Student de paramètres \((\rho,\nu)\). Les temps de défaut
+sont obtenus en appliquant la même transformation marginale que dans le cas gaussien.
+
+Comme la fonction \(\mathcal{L}(\rho,\nu)\) est estimée par Monte-Carlo, on fixe la graine aléatoire afin
+de limiter la variabilité numérique entre deux évaluations. La recherche des paramètres est réalisée en
+deux étapes : une exploration sur grille pour initialiser \((\rho_{\mathrm{init}},\nu_{\mathrm{init}})\),
+puis un raffinement local via \texttt{scipy.optimize.minimize} avec l’algorithme \texttt{L-BFGS-B} sous
+contraintes, conduisant à \((\rho^\star,\nu^\star)\).
 
 
 
