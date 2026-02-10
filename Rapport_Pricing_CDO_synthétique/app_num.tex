@@ -48,7 +48,7 @@ copule gaussienne sous hypothèse d'un portefeuille homogène.
 Les résultats de calibrations sur les données présentées en section (\ref{subsubsec:data}) sont
 présentés Figure (\ref{fig:calibration_copule_gaussienne}) et montrent un résultat connu de la
 littérature : le modèle gaussien présente des queues de distributions indépendantes et n'arrive
-donc pas à simuler des évènement rares de défauts corrélés, les tranches equity sont bien approximées
+donc pas à simuler correctement les évènements rares de défauts corrélés, les tranches equity sont bien approximées
 mais les autres tranches sont surévaluées par rapport aux spreads observés.
 
 \begin{figure}[H]
@@ -59,7 +59,9 @@ mais les autres tranches sont surévaluées par rapport aux spreads observés.
 \end{figure}
 
 Nous pouvons voir Figure (\ref{fig:corr_copule_gaussienne}) que la corrélation implicite du modèle gaussien
-est très élevée oscillant autour de 0,7 pour les différentes dates.
+est très élevée oscillant autour de 0,7 pour les différentes dates. Cette forte corrélation explique la 
+surévaluation des tranches mezzanine et senior, le modèle gaussien doit compenser l'absence de queues de distribution
+ dépendantes par une forte corrélation pour simuler les défauts corrélés nécessaires à la tarification de ces tranches.
 
 \begin{figure}[H]
 \centering
@@ -67,6 +69,14 @@ est très élevée oscillant autour de 0,7 pour les différentes dates.
 \caption{Evolution du coefficient de corrélation implicite pour la copule gaussienne à un facteur}
 \label{fig:corr_copule_gaussienne}
 \end{figure}
+
+La Figure (\ref{fig:smile_gaussian_1fact}) montre que la corrélation implicite par tranche forme
+un "\emph{smile}" caractéristique des modèles à copule gaussienne, la tranche equity (0--3 \%) nécessite
+une corrélation implicite importante, la tranche senior également, tandis que les tranches mezzanine 
+(3--7 \% et 7--15 \%) nécessitent une corrélation implicite plus faible. Ce phénomène peut être expliqué
+de deux manières différentes : soit le modèle de copule implicite est bien plus complexe que le modèle gaussien
+ou bien le marché des tranches de CDO synthétiques est illiquide et les spreads observés ne sont pas fiables,
+ce qui expliquerait les difficultés de calibration du modèle gaussien.
 
 \begin{figure}[H]
 \centering

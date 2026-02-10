@@ -49,6 +49,8 @@ Le modèle CIR ne possède pas de solution intégrale simple, mais il est possib
 
 \subsection{Calibration des copules}
 
+\subsubsection{Copule gaussienne à un facteur}
+
 Nous cherchons à calibrer une copule gaussienne à partir des spreads
 de CDS observés sur les 10 dates fournies. Pour cela nous allons 
 chercher à minimiser la norme euclidienne entre les spreads observés et les 
@@ -79,11 +81,67 @@ le minimum de la norme euclidienne entre les spreads observés et les spreads ca
 à partir de la copule gaussienne. Il s'agit d'une méthode approchée de la méthode
 de Newton dite de "quasi-Newton".
 
-Dans une recherche ultérieure nous pourrons appliquer ces méthodes à des problèmes
-d'optimisation en plus grande dimension en essayant de calibrer une matrice de corrélation
-non homogène ou bien d'autres types de copules comme celle de Student ou bien d'autres
-mixtures.
+\subsubsection{Modèle de Vasicek}
 
+Dans le cas d'un portefolio homogène, grand et suffisament diversifié, il est possible
+de faire l'approximation de Vasicek ou LHP (\emph{Large Homogeneous Portfolio}) qui permet de calculer les pertes espérées et donc
+les spreads pour chaque tranche en fonction de la corrélation implicite. Pour cela on considère un portefeuille de crédit homogène de taille $n$.
+La dépendance des défauts est décrite par un modèle gaussien à un facteur :
+\begin{equation}
+    X_i = \sqrt{\rho}\,Z + \sqrt{1-\rho}\,\varepsilon_i,
+\end{equation}
+où $Z,\varepsilon_i \sim \mathcal N(0,1)$ sont indépendantes et $\rho \in (0,1)$. 
+
+\noindent Un défaut avant la date $t$ est défini par
+\begin{equation}
+\tau_i \le t
+\quad \Longleftrightarrow \quad
+X_i \le \Phi^{-1}\big(p(t)\big),
+\end{equation}
+où $p(t)$ est la probabilité de défaut marginale.
+
+\noindent Conditionnellement à $Z=z$, on a
+\begin{equation}
+X_i \mid Z=z \sim \mathcal N(\sqrt{\rho}\,z,\,1-\rho),
+\end{equation}
+d’où
+\begin{equation}
+q(z,t)
+:= \mathbb P(\tau_i \le t \mid Z=z)
+=
+\Phi\!\left(
+\frac{\Phi^{-1}(p(t)) - \sqrt{\rho}\,z}{\sqrt{1-\rho}}
+\right).
+\end{equation}
+Or nous savons que pour un notionnel unitaire et un taux de recouvrement constant $R$ la perte du portefeuille est
+\begin{equation}
+L_N(t)
+=
+(1-R)\,\frac{1}{N}
+\sum_{i=1}^N \mathbf 1_{\{\tau_i \le t\}}.
+\end{equation}
+Et conditionnellement à $Z=z$, les variables
+$\mathbf 1_{\{\tau_i \le t\}}$ sont i.i.d.\ de loi
+$\mathrm{Bernoulli}(q(z,t))$.
+Ainsi par la loi forte des grands nombres,
+\begin{equation}
+L_N(t)
+\xrightarrow[N\to\infty]{\text{p.s.}}
+L(t)
+:=
+(1-R)\,q(Z,t).
+\end{equation}
+Nous avons ainsi trouvé une formule explicite pour la perte du portefolio
+entier en fonction de la corrélation implicite $\rho$. Pour calculer l'espérance sur $Z$
+totale ou bien sur une tranche nous pourrons par exemple utiliser une méthode de
+quadrature de Gauss-Hermite.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/LHP_corr.png}
+\caption{Perte du portefeuille en fonction de la corrélation implicite $\rho$ pour différentes tranches du CDX NA IG Series 19}
+\label{fig:vasicek}
+\end{figure}
 
 
 
