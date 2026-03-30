@@ -1,5 +1,86 @@
 \section{Application numérique}
 
+\subsection{Simulations des numéraires}
+
+Nous allons observer dans cette partie les différentes trajectoires des numéraires calculés pour différentes valeurs de paramètres afin d'en visualiser l'influence, et de comparer les méthodes Vasicek et CIR.
+
+
+\subsubsection{Visualisation de trajectoires de référence}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/01_reference_numeraire.png}
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/01_reference_rate.png}
+    \caption{Trajectoires de numéraires et $r_t$de référence pour les modèles de Vasicek et CIR}
+    \label{fig:numeraire_refs}
+\end{figure}
+
+Ces trajectoires de référence permettent d'observer que les deux modèles oscillent autour d'une valeur de taux $\theta$ de 0.06, et que le modèle CIR est plus volatile et reste toujours strictement positif, ce qui n'est pas le cas du modèle Vasicek qui peut franchir 0.
+
+
+\subsubsection{Etude de l'influence des paramètres des modèles}
+
+
+Les trajectoires simulées par ces deux modèles sont influencées par les paramètres $\kappa$, $\theta$ et $\sigma$. Nous allons observer l'influence de chacun de ces paramètres sur les trajectoires du numéraire et du taux d'intérêt.
+
+
+\textbf{Etude de $\kappa$}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/02_kappa.png}
+    \caption{Influence du paramètre kappa sur les trajectoires de numéraires}
+    \label{fig:numeraire_kappa}
+\end{figure}
+
+
+On observe que le paramètre $\kappa$ influence la vitesse de retour à la moyenne du processus, plus $\kappa$ est grand plus les trajectoires oscillent rapidement autour de la valeur de $\theta$. Cependant ce paramètre n'influence pas la valeur de long terme du taux d'intérêt, qui est donnée par $\theta$.
+
+
+\textbf{Etude de $\theta$}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/03_theta.png}
+    \caption{Influence du paramètre theta sur les trajectoires de numéraires}
+    \label{fig:numeraire_theta}
+\end{figure}
+
+
+On remarque ici que le paramètre $\theta$ influence la valeur de long terme du taux d'intérêt. On observe également que pour des valeurs de $\theta$ faibles, le modèle Vasicek peut franchir 0 et devenir négatif, contrairement au modèle CIR.
+
+
+\textbf{Etude de $\sigma$}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/04_sigma_vasicek.png}
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/04_sigma_cir.png}
+    \caption{Influence du paramètre sigma sur les trajectoires de numéraires}
+    \label{fig:numeraire_sigma}
+\end{figure}
+
+
+On peut voir ici que le modèle Vasicek est plus sensible que le modèle CIR à ce paramètre, qui produit un étalement des trajectoires plus important pour ce modèle que pour le CIR.
+
+
+\subsubsection{Synthèse}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/05_vasicek_vs_cir.png}
+    \caption{Comparaison Vasicek vs CIR}
+    \label{fig:numeraire_comparaison}
+\end{figure}
+
+
+On observe que les deux modèles sont capables de produire des trajectoires de numéraires similaires, et se comportent très similairement par rapport aux paramètres $\kappa$ et $\theta$.
+La principale différence entre eux est le comportement en $\sigma$, ainsi que la positivité des taux, qui rend le modèle Vasicek problématique lorsque l'on a des taux proches de 0 car il peut alors produire des taux négatifs.
 \subsection{Jeu de données}\label{subsec:data}
 
 Pour notre étude nous étudierons $Q = 4$ tranches du CDO synthétique
