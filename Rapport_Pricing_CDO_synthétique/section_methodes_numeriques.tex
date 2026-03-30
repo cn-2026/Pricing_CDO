@@ -285,3 +285,55 @@ En théorie, il serait possible de calibrer directement les cinq paramètres du 
 sur les données de marché. En pratique, avec seulement $10$ dates et $4$ tranches observées par date, une telle calibration serait peu robuste. Les effets de compensation entre $\sigma$, $\lambda_J$ et $\mu$ rendent l'identification instable et exposée au \textit{sur-ajustement}.
 
 Pour cette raison, nous choisissons de fixer les paramètres structurels à partir d'ordres de grandeur issus de la littérature classique \cite{DuffieGarleanu}. L'objectif n'est donc pas de recalibrer entièrement le processus $\lambda^{syst}$, mais d'évaluer dans quelle mesure l'introduction d'une intensité systémique stochastique avec sauts permet de mieux représenter la dépendance entre défauts et d'atténuer le \textit{smile} de corrélation. La fixation des paramètres constitue ainsi un choix de stabilité numérique et de lisibilité économique.
+
+\subsection{Méthodologie de Calibration (Approche de Mortensen)}
+
+Afin d'éviter un sur-apprentissage sur un échantillon de marché limité à $10$ dates, nous n'avons pas cherché à recalibrer librement l'ensemble des paramètres du facteur systémique à sauts. Dans l'esprit de l'approche parcimonieuse proposée par Mortensen \cite{Mortensen2006}, nous avons au contraire fixé les paramètres macroéconomiques du processus affine à sauts à des ordres de grandeur issus de la littérature, en particulier \cite{DuffieGarleanu}, de manière à représenter un régime de stress systémique sévère.
+
+L'idée est alors de ne calibrer que les paramètres qui gouvernent directement la répartition du risque entre composante commune et composante propre. En notant
+\begin{equation}
+\lambda_i(t)=\lambda_i^{idio}(t)+\beta\,\lambda^{syst}(t),
+\end{equation}
+nous choisissons de calibrer uniquement la sensibilité au facteur systémique $\beta$, tandis que l'intensité idiosyncratique est déduite d'une contrainte de \textit{repricing} du CDS de l'indice.
+
+Cette contrainte traduit le fait que, sous l'approximation usuelle utilisée dans notre cadre, l'espérance de l'intensité totale doit être cohérente avec le spread observé sur le CDS de référence. Si l'on note $S_{CDS}$ le spread de l'indice et $\mathrm{LGD}=1-R$ la perte en cas de défaut, on impose
+\begin{equation}
+\mathbb{E}\!\left[\lambda_i(t)\right]=\frac{S_{CDS}}{\mathrm{LGD}}.
+\end{equation}
+En remplaçant par la décomposition précédente, on obtient
+\begin{equation}
+\mathbb{E}\!\left[\lambda_i^{idio}(t)\right]+\beta\,\mathbb{E}\!\left[\lambda^{syst}(t)\right]
+=
+\frac{S_{CDS}}{\mathrm{LGD}},
+\end{equation}
+soit, pour une intensité idiosyncratique moyenne notée $\bar{\lambda}^{idio}$,
+\begin{equation}
+\bar{\lambda}^{idio}
+=
+\frac{S_{CDS}}{\mathrm{LGD}}
+-
+\beta\,\mathbb{E}\!\left[\lambda^{syst}(t)\right].
+\end{equation}
+Ainsi, pour chaque valeur candidate de $\beta$, la composante idiosyncratique n'est pas optimisée librement mais déduite automatiquement de la contrainte de calibration sur le CDS de l'indice.
+
+L'algorithme d'optimisation devient alors essentiellement unidimensionnel : pour chaque date, on cherche la valeur de $\beta$ qui minimise l'erreur de calibration sur les quatre tranches observées. La fonction objectif retenue est la RMSE logarithmique,
+\begin{equation}
+\mathrm{RMSE}_{\log}(\beta)
+=
+\sqrt{
+\frac{1}{4}
+\sum_{k=1}^{4}
+\left[
+\log\!\left(
+\frac{S_k^{mod}(\beta)}{S_k^{mkt}}
+\right)
+\right]^2
+},
+\end{equation}
+où $S_k^{mod}(\beta)$ désigne le spread de la tranche $k$ produit par le modèle AJD et $S_k^{mkt}$ le spread observé sur le marché. Ce choix est cohérent avec le reste du rapport : il évite qu'une tranche à spread élevé, en particulier l'equity, ne domine artificiellement la calibration. Le paramètre optimal est donc donné par
+\begin{equation}
+\beta^\star
+=
+\arg\min_{\beta}\mathrm{RMSE}_{\log}(\beta),
+\end{equation}
+la composante idiosyncratique étant à chaque étape imposée par la contrainte de \textit{repricing} du CDS.

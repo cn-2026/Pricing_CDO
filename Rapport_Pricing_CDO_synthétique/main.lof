@@ -1,11 +1,17 @@
 \babel@toc {french}{}\relax 
-\contentsline {figure}{\numberline {1}{\ignorespaces Schéma de transaction d'un CDS sans défaut}}{9}{figure.caption.7}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Schéma de transaction d'un CDS dans le cas d'un défaut}}{9}{figure.caption.8}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Méchanisme d'émission d'un CDO}}{11}{figure.caption.12}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Distribution des tranches et effet "\emph {waterfall}" d'un CDO}}{12}{figure.caption.13}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Spread calibré pour les tranches du CDX NA IG Series 19}}{29}{figure.caption.15}%
-\contentsline {figure}{\numberline {6}{\ignorespaces Evolution de la perte espérée par tranche en fonction de la corrélation sous modèle LHP}}{30}{figure.caption.16}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Evolution des correlations implicites estimées par les différents modèles}}{30}{figure.caption.17}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Comparaison des RMSE logarithmiques pour les différents modèles}}{31}{figure.caption.18}%
-\contentsline {figure}{\numberline {9}{\ignorespaces Corrélation implicite en fonction de la tranche}}{32}{figure.caption.19}%
-\contentsline {figure}{\numberline {10}{\ignorespaces Comparaison entre les spreads générés par le modèle à intensité stochastique avec sauts et la frontière de réplication du modèle gaussien LHP. L'absence de solution pour les tranches Equity et Mezzanine met en évidence le caractère \textit {out-of-model} de ces spreads dans le cadre de la copule gaussienne, tandis que la tranche Senior admet une corrélation implicite élevée, illustrant l'origine structurelle du smile de corrélation.}}{35}{figure.caption.23}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Schéma de transaction d'un CDS sans défaut}}{8}{figure.caption.6}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Schéma de transaction d'un CDS dans le cas d'un défaut}}{9}{figure.caption.7}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Méchanisme d'émission d'un CDO}}{11}{figure.caption.11}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Distribution des tranches et effet "\emph {waterfall}" d'un CDO}}{11}{figure.caption.12}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Trajectoires de numéraires et $r_t$de référence pour les modèles de Vasicek et CIR}}{29}{figure.caption.13}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Influence du paramètre kappa sur les trajectoires de numéraires}}{29}{figure.caption.14}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Influence du paramètre theta sur les trajectoires de numéraires}}{30}{figure.caption.15}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Influence du paramètre sigma sur les trajectoires de numéraires}}{30}{figure.caption.16}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Comparaison Vasicek vs CIR}}{31}{figure.caption.17}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Spread calibré pour les tranches du CDX NA IG Series 19}}{32}{figure.caption.19}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Evolution de la perte espérée par tranche en fonction de la corrélation sous modèle LHP}}{33}{figure.caption.20}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Evolution des correlations implicites estimées par les différents modèles}}{34}{figure.caption.21}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Comparaison des RMSE logarithmiques pour les différents modèles}}{34}{figure.caption.22}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Corrélation implicite en fonction de la tranche}}{35}{figure.caption.23}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Comparaison, par tranche, entre les spreads observés sur le marché et les spreads produits par le modèle AJD sur l'échantillon 2014--2015. Le modèle sous-évalue nettement les tranches Equity, Mezz I et Mezz II, et génère un spread nul sur la tranche Senior. Cette figure illustre la difficulté du modèle calibré à reproduire simultanément le risque fréquent des tranches basses et le risque de queue des tranches supérieures.}}{37}{figure.caption.27}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Comparaison des erreurs de calibration logarithmiques entre le modèle à intensité stochastique AJD et la copule gaussienne LHP sur les dix dates de l'échantillon. On observe que l'erreur du modèle AJD demeure systématiquement plus élevée que celle du modèle LHP, ce qui confirme la difficulté de l'approche AJD calibrée à reproduire finement les spreads observés sur cette période de marché calme.}}{39}{figure.caption.28}%

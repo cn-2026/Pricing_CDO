@@ -1,5 +1,86 @@
 \section{Application numérique}
 
+\subsection{Simulations des numéraires}
+
+Nous allons observer dans cette partie les différentes trajectoires des numéraires calculés pour différentes valeurs de paramètres afin d'en visualiser l'influence, et de comparer les méthodes Vasicek et CIR.
+
+
+\subsubsection{Visualisation de trajectoires de référence}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/01_reference_numeraire.png}
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/01_reference_rate.png}
+    \caption{Trajectoires de numéraires et $r_t$de référence pour les modèles de Vasicek et CIR}
+    \label{fig:numeraire_refs}
+\end{figure}
+
+Ces trajectoires de référence permettent d'observer que les deux modèles oscillent autour d'une valeur de taux $\theta$ de 0.06, et que le modèle CIR est plus volatile et reste toujours strictement positif, ce qui n'est pas le cas du modèle Vasicek qui peut franchir 0.
+
+
+\subsubsection{Etude de l'influence des paramètres des modèles}
+
+
+Les trajectoires simulées par ces deux modèles sont influencées par les paramètres $\kappa$, $\theta$ et $\sigma$. Nous allons observer l'influence de chacun de ces paramètres sur les trajectoires du numéraire et du taux d'intérêt.
+
+
+\textbf{Etude de $\kappa$}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/02_kappa.png}
+    \caption{Influence du paramètre kappa sur les trajectoires de numéraires}
+    \label{fig:numeraire_kappa}
+\end{figure}
+
+
+On observe que le paramètre $\kappa$ influence la vitesse de retour à la moyenne du processus, plus $\kappa$ est grand plus les trajectoires oscillent rapidement autour de la valeur de $\theta$. Cependant ce paramètre n'influence pas la valeur de long terme du taux d'intérêt, qui est donnée par $\theta$.
+
+
+\textbf{Etude de $\theta$}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/03_theta.png}
+    \caption{Influence du paramètre theta sur les trajectoires de numéraires}
+    \label{fig:numeraire_theta}
+\end{figure}
+
+
+On remarque ici que le paramètre $\theta$ influence la valeur de long terme du taux d'intérêt. On observe également que pour des valeurs de $\theta$ faibles, le modèle Vasicek peut franchir 0 et devenir négatif, contrairement au modèle CIR.
+
+
+\textbf{Etude de $\sigma$}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/04_sigma_vasicek.png}
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/04_sigma_cir.png}
+    \caption{Influence du paramètre sigma sur les trajectoires de numéraires}
+    \label{fig:numeraire_sigma}
+\end{figure}
+
+
+On peut voir ici que le modèle Vasicek est plus sensible que le modèle CIR à ce paramètre, qui produit un étalement des trajectoires plus important pour ce modèle que pour le CIR.
+
+
+\subsubsection{Synthèse}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/figures_numeraire/05_vasicek_vs_cir.png}
+    \caption{Comparaison Vasicek vs CIR}
+    \label{fig:numeraire_comparaison}
+\end{figure}
+
+
+On observe que les deux modèles sont capables de produire des trajectoires de numéraires similaires, et se comportent très similairement par rapport aux paramètres $\kappa$ et $\theta$.
+La principale différence entre eux est le comportement en $\sigma$, ainsi que la positivité des taux, qui rend le modèle Vasicek problématique lorsque l'on a des taux proches de 0 car il peut alors produire des taux négatifs.
 \subsection{Jeu de données}\label{subsec:data}
 
 Pour notre étude nous étudierons $Q = 4$ tranches du CDO synthétique
@@ -172,82 +253,80 @@ Date & $\rho_{\text{MC abs}}$ & $\rho_{\text{LHP log}}$ & $\rho_{\text{t-g}}$ & 
 \label{tab:calibrated_parameters}
 \end{table}
 
-
-
-
 \subsection{Résultats du Modèle à Intensité}
-
-Nous présentons dans cette sous-section les résultats obtenus par simulation Monte Carlo pour le modèle à intensité stochastique avec sauts appliqué au portefeuille de référence. Les quantités reportées ci-dessous correspondent aux valeurs estimées des jambes de protection et de premium, ainsi qu'au spread implicite obtenu pour chaque tranche du portefeuille.
 
 \begin{table}[H]
 \centering
-\caption{Résultats de simulation du modèle à intensité stochastique}
-\label{tab:resultats_modele_intensite}
-\small
+\caption{Résultats de calibration du modèle AJD}
+\label{tab:ajd_calibration_results}
+\scriptsize
 \setlength{\tabcolsep}{3.5pt}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{lccccc}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{lccccccc}
 \toprule
-\textbf{Tranche} &
-\textbf{Att.} &
-\textbf{Det.} &
-\begin{tabular}[c]{@{}c@{}}\textbf{Protection}\\\textbf{Leg}\end{tabular} &
-\begin{tabular}[c]{@{}c@{}}\textbf{Premium Leg}\\\textbf{(1bp)}\end{tabular} &
-\begin{tabular}[c]{@{}c@{}}\textbf{Spread}\\\textbf{(bps)}\end{tabular} \\
+\textbf{Date} & $\boldsymbol{\beta^{\ast}}$ & $\boldsymbol{\lambda_{idio}^{\ast}}$ & \textbf{RMSE AJD} & \textbf{Equity} & \textbf{Mezz I} & \textbf{Mezz II} & \textbf{Senior} \\
 \midrule
-Equity [0,3\%]    & 0\%  & 3\%   & 0.953385 & 1.516761 & 6285.66 \\
-Mezz I [3,7\%]    & 3\%  & 7\%   & 0.613332 & 3.658502 & 1676.46 \\
-Mezz II [7,15\%]  & 7\%  & 15\%  & 0.185976 & 4.692054 & 396.36 \\
-Senior [15,100\%] & 15\% & 100\% & 0.004515 & 4.975289 & 9.07 \\
+2014-06-01 & 0.2115 & 0.00015 & 2.5630 & 0.3157 & 82.17 & 1.92 & 0.00 \\
+2014-07-03 & 0.1863 & 0.00058 & 2.6503 & 0.3036 & 64.36 & 0.99 & 0.00 \\
+2014-08-15 & 0.1863 & 0.00074 & 2.6526 & 0.3176 & 68.17 & 1.12 & 0.00 \\
+2014-09-23 & 0.1863 & 0.00058 & 2.6742 & 0.3036 & 64.36 & 0.99 & 0.00 \\
+2014-10-11 & 0.2115 & 0.00049 & 2.5762 & 0.3445 & 90.22 & 2.05 & 0.00 \\
+2014-11-17 & 0.1863 & 0.00024 & 2.6979 & 0.2715 & 57.78 & 0.85 & 0.00 \\
+2014-12-01 & 0.1611 & 0.00050 & 2.8763 & 0.2401 & 41.31 & 0.38 & 0.00 \\
+2015-01-07 & 0.2115 & 0.00015 & 2.5866 & 0.3157 & 82.17 & 1.92 & 0.00 \\
+2015-02-10 & 0.1863 & 0.00058 & 2.6820 & 0.3036 & 64.36 & 0.99 & 0.00 \\
+2015-03-15 & 0.1863 & 0.00008 & 2.9466 & 0.2554 & 55.21 & 0.74 & 0.00 \\
+\midrule
+\textbf{Moyenne} & \textbf{0.1913} & \textbf{0.00041} & \textbf{2.6906} & \textbf{0.2971} & \textbf{67.01} & \textbf{1.19} & \textbf{0.00} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Les statistiques de diagnostic associées à cette simulation sont les suivantes :
-\begin{itemize}
-    \item Nombre moyen de defaults en $T=5a$ : $15.02$.
-    \item ETL Equity en $T=5a$ : $95.5532\%$.
-    \item ETL Senior en $T=5a$ : $0.4539\%$.
-\end{itemize}
+Le paramètre optimal $\beta^{\ast}$ reste relativement stable sur l'ensemble de l'échantillon, avec une moyenne de $0.1913$. À l'inverse, l'intensité idiosyncratique implicite $\lambda_{idio}^{\ast}$ est systématiquement très faible, de l'ordre de $10^{-4}$. Cela signifie que, sous la contrainte de repricing du CDS, la calibration attribue l'essentiel de la dépendance au facteur systémique et compresse presque totalement la composante idiosyncratique.
 
-D'abord, nous observons une hiérarchie des spreads cohérente avec la structure de subordination du CDO. La tranche equity concentre l'essentiel du risque agrégé et présente logiquement le spread le plus élevé, de l'ordre de $6285.66$ bps. Cette valeur est cohérente avec une perte espérée finale très importante, comme le confirme l'ETL de $95.5532\%$ à maturité. Les deux tranches mezzanine présentent ensuite une décroissance nette des spreads, avec $1676.46$ bps pour la tranche $[3,7]\%$ et $396.36$ bps pour la tranche $[7,15]\%$, ce qui reflète naturellement leur exposition plus tardive aux pertes du portefeuille.
+Les spreads simulés confirment ensuite une structure très déséquilibrée. La tranche Equity reste comprise entre $24\%$ et $34\%$, tandis que la tranche Mezz I demeure très élevée, avec une moyenne de $67.01$ bps. En revanche, la tranche Senior est toujours nulle et la tranche Mezz II reste faible. Le modèle concentre donc l'essentiel du risque sur les tranches basses, sans parvenir à générer un risque significatif sur la partie supérieure de la structure.
 
-Un point particulièrement important concerne la tranche senior $[15,100]\%$. Son spread reste faible en niveau absolu, avec $9.07$ bps, mais il demeure strictement positif, de même que son ETL à maturité, égal à $0.4539\%$. Ce résultat montre que le modèle attribue une probabilité non nulle à des pertes suffisamment élevées pour atteindre la partie supérieure de la structure du capital. Contrairement aux modèles statiques de copule à un facteur, le modèle à intensité avec sauts génère ce risque de manière endogène par la dynamique du facteur systémique.
+Enfin, la RMSE logarithmique moyenne de $2.6906$ indique un ajustement globalement faible sur l'échantillon. Ce résultat montre que, dans cette calibration, le modèle AJD ne parvient pas à reproduire simultanément l'ensemble des spreads observés. Autrement dit, même si la dynamique systémique explique une partie importante du risque agrégé, les paramètres retenus conduisent ici à une structure de pertes trop concentrée sur les tranches inférieures et insuffisamment diffuse sur les tranches supérieures.
 
-Nous remarquons également que le nombre moyen de défauts à l'horizon $T=5$ ans, égal à $15.02$ sur un portefeuille de $125$ noms, reste élevé au regard du contexte particulièrement calme de la période 2014--2015. Cela suggère que les paramètres structurels retenus induisent un environnement de stress plus sévère que celui observé empiriquement. En ce sens, le modèle ne doit pas être interprété comme fournissant le meilleur ajustement ponctuel aux spreads de marché, mais plutôt comme une démonstration de sa capacité structurelle à générer des défauts groupés et du risque de queue.
 
-Enfin, la dépendance entre défauts n'est plus imposée statiquement par un paramètre de corrélation, mais émerge ici de la composante systémique commune et de ses sauts. Une hausse continue du facteur systémique accroît progressivement les intensités individuelles, tandis qu'un saut provoque une détérioration brutale et simultanée du crédit sur l'ensemble du portefeuille. Cette structure rend le modèle plus réaliste économiquement et mieux adapté à la génération de pertes extrêmes sur les tranches supérieures.
 
-Contrairement à la copule gaussienne qui peine à générer des pertes extrêmes sans forcer des corrélations irréalistes, le modèle à intensité stochastique avec sauts produit naturellement un spread significatif pour la tranche Super-Senior (9.07 bps) et une perte espérée non nulle (0.45\%). Les sauts du processus de Poisson modélisent efficacement les crises systémiques, provoquant des vagues de défauts simultanés. Bien que les paramètres structurels historiques \cite{DuffieGarleanu} génèrent un environnement de stress supérieur à la période particulièrement calme de 2014-2015 de notre jeu de données, cette simulation prouve la supériorité mécanique du modèle dynamique : il capture le risque de queue (tail risk) et offre une solution structurelle au problème du smile de corrélation.
-\subsection{Comparaison des Modèles : Copules vs Intensité Stochastique}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/correlation_smile.png}
-    \caption{Comparaison entre les spreads générés par le modèle à intensité stochastique avec sauts et la frontière de réplication du modèle gaussien LHP. L'absence de solution pour les tranches Equity et Mezzanine met en évidence le caractère \textit{out-of-model} de ces spreads dans le cadre de la copule gaussienne, tandis que la tranche Senior admet une corrélation implicite élevée, illustrant l'origine structurelle du smile de corrélation.}
-    \label{fig:correlation_smile}
+    \includegraphics[width=\textwidth]{images/marché_vs_AJD.png}
+    \caption{Comparaison, par tranche, entre les spreads observés sur le marché et les spreads produits par le modèle AJD sur l'échantillon 2014--2015. Le modèle sous-évalue nettement les tranches Equity, Mezz I et Mezz II, et génère un spread nul sur la tranche Senior. Cette figure illustre la difficulté du modèle calibré à reproduire simultanément le risque fréquent des tranches basses et le risque de queue des tranches supérieures.}
+    \label{fig:market_vs_ajd}
 \end{figure}
 
-Nous cherchons à présent à comparer directement les résultats obtenus avec le modèle à intensité stochastique avec sauts à ceux du modèle gaussien LHP utilisé comme référence dans l'ensemble de notre étude. L'idée n'est plus ici de calibrer la copule gaussienne sur les spreads de marché, mais de l'utiliser comme un simple outil de mesure afin de traduire les spreads générés par le modèle d'intensité en corrélations implicites. Cette démarche est proche de la pratique de marché dite de \textit{compound correlation} : pour chaque tranche, on cherche la valeur $\rho^{\ast}$ telle que le spread produit par le modèle gaussien soit égal au spread fourni par le modèle dynamique. Autrement dit, on cherche à résoudre numériquement l'équation
-$$
-Spread_{LHP}(\rho)-Spread_{Intensite}=0.
-$$
-La Figure \ref{fig:correlation_smile} résume le résultat de cette inversion pour les quatre tranches du portefeuille et met en évidence une différence fondamentale entre les deux familles de modèles.
+Les résultats de la figure \ref{fig:market_vs_ajd} montrent que le modèle AJD ne parvient pas à reproduire correctement la structure des spreads observés sur l'ensemble des tranches. La sous-tarification est particulièrement marquée sur la tranche Equity : le modèle reste systématiquement en dessous du marché sur toute la période, ce qui indique qu'il génère trop peu de pertes fréquentes à court et moyen terme. La même conclusion vaut pour la tranche Mezz II, dont les spreads simulés demeurent très inférieurs aux spreads observés.
 
-\subsubsection{Inexistence de la corrélation implicite : le phénomène \textit{Out-of-Model}}
+La tranche Mezz I est la seule pour laquelle le modèle capte partiellement la dynamique du marché. Les niveaux simulés restent toutefois trop faibles sur la majeure partie de l'échantillon, même si l'écart se réduit sur certaines dates de fin de période. Cette amélioration locale ne suffit pas à compenser l'écart important observé sur les autres tranches.
 
-Le premier résultat marquant est l'échec de l'algorithme de recherche de racine pour les tranches Equity et Mezzanine. Pour ces tranches, les spreads produits par le modèle à intensité avec sauts sont si élevés qu'ils demeurent au-dessus de la frontière maximale accessible au modèle gaussien LHP, même lorsque $\rho$ tend vers $1$. Autrement dit, la fonction $\rho \mapsto Spread_{LHP}(\rho)$ ne coupe jamais le niveau imposé par le modèle d'intensité, de sorte qu'aucune corrélation implicite admissible ne peut être définie. Les spreads obtenus sont donc \textit{hors modèle} au sens où ils appartiennent à une région de prix inaccessible à la copule gaussienne.
+Le résultat le plus significatif concerne la tranche Senior : le spread simulé est nul sur toute la période, alors que le marché valorise systématiquement un spread positif compris entre environ $1.2$ et $1.6$ bps. Le modèle calibré est donc incapable de générer un risque de queue suffisant pour atteindre la partie haute de la structure du capital. Autrement dit, la dynamique retenue produit trop peu de scénarios de pertes extrêmes.
 
-Ce phénomène s'explique directement par la structure probabiliste des deux approches. La copule gaussienne repose sur une dépendance induite par un facteur latent normal. Même si ce facteur commun permet de corréler les défauts, il conserve des queues fines et attribue donc une probabilité relativement faible aux événements extrêmes de pertes massives. A l'inverse, le modèle à intensité stochastique introduit explicitement un processus de Poisson composé $dJ_t$ dans la dynamique du facteur systémique. Les sauts de ce processus représentent des chocs macroéconomiques brutaux, capables d'augmenter simultanément un grand nombre d'intensités individuelles et de provoquer des vagues de défauts groupés. La masse de probabilité est alors déplacée vers les queues de distribution, ce qui engendre des \textit{fat tails} que la copule gaussienne n'est pas structurellement capable de reproduire. L'inexistence de $\rho^{\ast}$ n'est donc pas un accident numérique mais la manifestation directe d'une insuffisance du modèle gaussien face au risque de queue.
+Dans cette calibration, le modèle AJD conduit ainsi à une structure de pertes trop concentrée sur les couches intermédiaires, tout en sous-estimant à la fois le risque fréquent des tranches basses et le risque extrême des tranches hautes. Cela explique la mauvaise qualité d'ajustement globale observée sur la RMSE logarithmique.
 
-\subsubsection{Le cas révélateur de la tranche Senior et l'origine du smile}
 
-Le seul cas pour lequel une corrélation implicite valide peut être obtenue est celui de la tranche Senior. La Figure \ref{fig:correlation_smile} indique alors une valeur de l'ordre de $65\%$, c'est-à-dire un niveau de corrélation particulièrement élevé pour un portefeuille investment grade. Ce résultat est très révélateur. Pour justifier, dans un modèle statique, un spread non négligeable sur une tranche aussi protégée, il faut artificiellement concentrer la distribution des pertes sur des scénarios où un très grand nombre de défauts surviennent simultanément. La copule gaussienne ne pouvant créer cette dépendance extrême qu'en augmentant fortement son unique paramètre de corrélation, elle est contrainte de forcer $\rho$ à des niveaux très élevés.
+Le mauvais ajustement observé ne provient pas d'un problème numérique isolé, mais de la structure même du modèle calibré. En effet, l'intensité totale est écrite sous la forme
+\begin{equation}
+\lambda_i(t)=\lambda_i^{idio}(t)+\beta\,\lambda^{syst}(t),
+\end{equation}
+tandis que la dynamique systémique à sauts est fixée à partir de la littérature. La calibration ne porte donc essentiellement que sur $\beta$, l'intensité idiosyncratique étant ensuite imposée par la contrainte de \textit{repricing} du CDS de l'indice. Cette spécification laisse au modèle trop peu de flexibilité pour ajuster simultanément l'ensemble des tranches.
 
-Or un tel choix ne peut pas être cohérent sur l'ensemble de la structure du capital. En effet, imposer une corrélation globale de l'ordre de $65\%$ modifierait profondément la tarification des tranches inférieures. Les premières pertes deviendraient alors moins fréquentes mais beaucoup plus concentrées, ce qui écraserait la valorisation relative des tranches Equity et Mezzanine et conduirait à un désalignement avec les spreads effectivement générés par le modèle dynamique. Nous retrouvons ici, sous une autre forme, le phénomène du \textit{smile} de corrélation déjà mis en évidence dans les sections précédentes : chaque tranche réclame en réalité sa propre corrélation implicite parce qu'un paramètre statique unique ne peut pas réconcilier simultanément le risque fréquent des tranches basses et le risque extrême des tranches hautes.
+Dans ce cadre, l'optimisation tend à écraser la composante idiosyncratique vers zéro afin de respecter la contrainte sur le spread CDS agrégé. Le modèle génère alors trop peu de pertes fréquentes sur les tranches basses, ce qui explique la sous-tarification observée sur l'Equity et la Mezz I. Inversement, comme le $\beta$ calibré reste modéré, les chocs du facteur systémique ne sont pas transmis avec une intensité suffisante pour atteindre régulièrement les tranches supérieures, d'où un spread quasi nul sur la tranche Senior.
 
-\subsubsection{Interprétation économique de la comparaison}
+Autrement dit, le modèle calibré concentre mal la distribution des pertes : il réduit excessivement le risque idiosyncratique sans pour autant générer assez de risque de queue. Ce résultat s'explique aussi par un conflit de régimes : les paramètres de saut retenus sont conçus pour représenter un environnement de stress macroéconomique, alors que l'échantillon 2014--2015 correspond à une période de marché relativement calme. Le modèle AJD utilisé ici reste donc pertinent sur le plan structurel, mais sa version parcimonieuse calibrée dans notre cadre ne dispose pas d'assez de degrés de liberté pour reproduire finement les spreads observés.
 
-Plusieurs observations peuvent être faites à partir de cette comparaison. Tout d'abord, le modèle à intensité stochastique avec sauts produit naturellement une structure de pertes dans laquelle coexistent des défauts idiosyncratiques usuels et des épisodes de crise systémique. Cette coexistence permet de tarifer à la fois les tranches inférieures, sensibles à la fréquence des pertes, et les tranches supérieures, sensibles aux événements rares mais sévères. Ensuite, la copule gaussienne apparaît ici moins comme un véritable concurrent que comme un révélateur de ses propres limites : dès lors que les spreads d'une tranche sortent de son domaine atteignable, elle ne fournit plus une approximation imparfaite, mais cesse simplement d'être un cadre valide pour représenter la distribution des pertes.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/erreur_de_calibration_AJD_LHP.png}
+    \caption{Comparaison des erreurs de calibration logarithmiques entre le modèle à intensité stochastique AJD et la copule gaussienne LHP sur les dix dates de l'échantillon. On observe que l'erreur du modèle AJD demeure systématiquement plus élevée que celle du modèle LHP, ce qui confirme la difficulté de l'approche AJD calibrée à reproduire finement les spreads observés sur cette période de marché calme.}
+    \label{fig:rmse_ajd_lhp}
+\end{figure}
 
-Cette lecture permet également de mieux comprendre la signification économique du \textit{smile}. Celui-ci ne doit pas être interprété comme une anomalie exogène du marché ou comme une imperfection passagère de calibration. Il est au contraire le symptôme d'un décalage entre la structure réelle du risque de crédit et le cadre trop rigide du modèle de copule utilisé pour le mesurer. Lorsque le marché valorise implicitement un risque de queue que la copule ne sait pas engendrer, celle-ci répond en déformant tranche par tranche la corrélation implicite, d'où l'apparition d'un \textit{skew} ou d'un \textit{smile}.
+
+La Figure \ref{fig:rmse_ajd_lhp} montre avant tout que l'écart de performance entre les deux modèles est stable dans le temps. LHP domine systématiquement l'AJD sur chacune des dix dates, sans exception, ce qui exclut l'hypothèse d'un simple accident de calibration sur quelques observations isolées. L'écart n'est donc pas marginal : il est structurel sur l'ensemble de l'échantillon.
+
+On remarque également que la RMSE du modèle LHP reste non seulement plus faible, mais aussi plus resserrée d'une date à l'autre. À l'inverse, le modèle AJD présente un niveau d'erreur élevé sur toute la période, avec une légère dégradation en fin d'échantillon. Cette régularité est importante : elle indique que le modèle AJD ne manque pas une date particulière, mais qu'il peine à reproduire la forme globale des spreads observés.
+
+La figure met ainsi en évidence un point simple mais essentiel : sur la seule métrique de \textit{fit} instantané, le modèle LHP reste plus efficace sur notre jeu de données. Autrement dit, si l'objectif était uniquement de minimiser l'erreur de calibration à date, la copule gaussienne fournirait ici une meilleure approximation des quotes de marché que le modèle AJD.
