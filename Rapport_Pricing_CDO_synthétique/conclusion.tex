@@ -1,23 +1,15 @@
 \section{Conclusion}
 
-Dans ce rapport, nous avons mis en place un cadre de modélisation pour la tarification des tranches de CDO synthétiques.
-Après avoir rappelé le cadre risque-neutre et les éléments de base du marché du crédit (CDS, jambe premium et jambe protection),
-nous avons présenté des modèles de dépendance des défauts via les copules (gaussienne et de Student) ainsi qu’un cadre à intensité.
-Nous avons ensuite décrit une procédure numérique de calibration et appliqué ces méthodes aux tranches du CDX NA IG Series 19
-(maturité 5 ans) sur dix dates de marché issues de \cite{OhkrinXu}.
+Ce travail avait pour objectif de proposer un cadre rigoureux de modélisation et de tarification des tranches de CDO synthétiques, en mettant l’accent sur la compréhension et la comparaison de différentes structures de dépendance entre défauts. À partir d’une formulation probabiliste complète et d’un cadre d’évaluation sans arbitrage, nous avons construit un pipeline cohérent allant de la modélisation du risque de défaut individuel jusqu’à la valorisation des tranches via la perte espérée.
 
-Les résultats numériques confirment une limite classique des approches à un facteur sous hypothèse de portefeuille homogène :
-une calibration globale par un seul paramètre de corrélation ne permet pas d’ajuster correctement toutes les tranches simultanément.
-La copule gaussienne reproduit la tranche equity mais présente des écarts importants sur les tranches mezzanine et senior, et
-l’apparition d’un smile de corrélation implicite indique que la dépendance demandée par le marché varie selon le niveau de subordination,
-phénomène bien documenté dans la littérature sur les tranches d’indices de crédit \cite{OhkrinXu}. Le passage à la copule de Student
-apporte davantage de flexibilité via le paramètre de degrés de liberté, mais dans notre paramétrisation simple il subsiste des écarts
-significatifs sur les tranches mezzanine et senior. Cela suggère que la structure de dépendance est plus complexe que ce que capture un
-modèle homogène à un seul facteur.
+Dans un premier temps, les modèles à copule classiques, en particulier la copule gaussienne à un facteur, ont permis de poser les bases de la modélisation de la dépendance. Toutefois, leur incapacité à reproduire simultanément les spreads de toutes les tranches, matérialisée par l’apparition d’un smile de corrélation, met en évidence leurs limites structurelles, notamment l’absence de dépendance de queue et leur caractère statique.
 
-Ces constats motivent la poursuite du projet. Dans une deuxième partie, nous chercherons à améliorer l’ajustement des tranches mezzanine
-et senior en enrichissant la structure de dépendance. D’une part, nous testerons des combinaisons de copules, comme proposé dans
-\cite{OhkrinXu}, afin d’accroître la flexibilité du modèle et de mieux représenter les comportements de queue. D’autre part, nous
-étudierons un modèle à intensité, notamment avec une composante systémique commune, dans l’esprit des modèles de CDO basés sur intensités
-et facteurs de marché \cite{DuffieGarleanu}. L’objectif sera de comparer ces extensions sur les mêmes données, en termes de qualité de
-calibration, de stabilité et de coût numérique.
+Afin de pallier ces insuffisances, nous avons introduit plusieurs extensions du cadre standard. Les copules à queues épaisses, telles que la copule de Student et la copule t-gaussienne, permettent une meilleure prise en compte des événements extrêmes, sans toutefois éliminer totalement les biais observés. Les modèles à mélange de corrélations et à corrélation stochastique offrent quant à eux une flexibilité accrue en modélisant explicitement la variabilité du régime de dépendance, améliorant ainsi la capacité d’ajustement simultané des différentes tranches.
+
+Parallèlement, nous avons exploré une approche alternative de type bottom-up reposant sur des intensités de défaut stochastiques. En introduisant un facteur systémique commun, potentiellement soumis à des sauts, ce modèle permet de générer une dépendance dynamique et économiquement interprétable entre les défauts. Néanmoins, les résultats de calibration montrent que, dans un environnement de marché relativement calme, cette approche reste difficile à ajuster finement, en raison notamment du nombre de paramètres et de leur faible identifiabilité.
+
+Sur le plan numérique, l’utilisation de l’approximation de grand portefeuille homogène, combinée à des méthodes de quadrature et d’optimisation efficaces, a permis de réduire considérablement le coût de calcul tout en conservant une précision satisfaisante, validée par comparaison avec des simulations Monte Carlo.
+
+Au total, ce projet met en évidence un compromis fondamental entre simplicité, interprétabilité et capacité d’ajustement des modèles. Les modèles les plus simples, bien que rapides et faciles à calibrer, peinent à capturer les phénomènes extrêmes, tandis que les modèles plus riches, bien que plus réalistes, introduisent des difficultés de calibration et de mise en œuvre.
+
+Ces résultats confirment que la modélisation du risque de crédit corrélé demeure un problème ouvert, au cœur des enjeux de la finance quantitative moderne. Des pistes d’amélioration naturelles incluent l’introduction de modèles multi-facteurs, de dynamiques de corrélation dépendantes du temps, ou encore l’intégration de données macroéconomiques explicites. Dans cette perspective, ce travail constitue une base solide pour des développements futurs à la fois théoriques et appliqués.

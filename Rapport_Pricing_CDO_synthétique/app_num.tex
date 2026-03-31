@@ -282,51 +282,40 @@ Date & $\rho_{\text{MC abs}}$ & $\rho_{\text{LHP log}}$ & $\rho_{\text{t-g}}$ & 
 \end{tabular}
 \end{table}
 
-Le paramètre optimal $\beta^{\ast}$ reste relativement stable sur l'ensemble de l'échantillon, avec une moyenne de $0.1913$. À l'inverse, l'intensité idiosyncratique implicite $\lambda_{idio}^{\ast}$ est systématiquement très faible, de l'ordre de $10^{-4}$. Cela signifie que, sous la contrainte de repricing du CDS, la calibration attribue l'essentiel de la dépendance au facteur systémique et compresse presque totalement la composante idiosyncratique.
+Le paramètre optimal $\beta^{\ast}$ reste relativement stable sur l'ensemble de l'échantillon, avec une moyenne de $0.1913$. À l'inverse, l'intensité idiosyncratique implicite $\lambda_{idio}^{\ast}$ est systématiquement très faible, de l'ordre de $10^{-4}$. Cela indique que, sous la contrainte de repricing du CDS, la calibration attribue l'essentiel du risque au facteur systémique, réduisant fortement la composante idiosyncratique.
 
-Les spreads simulés confirment ensuite une structure très déséquilibrée. La tranche Equity reste comprise entre $24\%$ et $34\%$, tandis que la tranche Mezz I demeure très élevée, avec une moyenne de $67.01$ bps. En revanche, la tranche Senior est toujours nulle et la tranche Mezz II reste faible. Le modèle concentre donc l'essentiel du risque sur les tranches basses, sans parvenir à générer un risque significatif sur la partie supérieure de la structure.
+Les spreads simulés mettent en évidence une structure de pertes déséquilibrée. La tranche Equity reste comprise entre $24\%$ et $34\%$, tandis que la tranche Mezz I demeure élevée (moyenne de $67.01$ bps). En revanche, la tranche Senior est systématiquement nulle et la tranche Mezz II reste faible. Le modèle concentre ainsi le risque sur les tranches basses, sans générer suffisamment de pertes extrêmes pour impacter la partie supérieure de la structure.
 
-Enfin, la RMSE logarithmique moyenne de $2.6906$ indique un ajustement globalement faible sur l'échantillon. Ce résultat montre que, dans cette calibration, le modèle AJD ne parvient pas à reproduire simultanément l'ensemble des spreads observés. Autrement dit, même si la dynamique systémique explique une partie importante du risque agrégé, les paramètres retenus conduisent ici à une structure de pertes trop concentrée sur les tranches inférieures et insuffisamment diffuse sur les tranches supérieures.
-
-
-
+Cette mauvaise répartition du risque se traduit par une RMSE logarithmique moyenne de $2.6906$, révélant un ajustement globalement faible sur l'échantillon. Le modèle ne parvient donc pas à reproduire simultanément l'ensemble des spreads observés.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/marché_vs_AJD.png}
-    \caption{Comparaison, par tranche, entre les spreads observés sur le marché et les spreads produits par le modèle AJD sur l'échantillon 2014--2015. Le modèle sous-évalue nettement les tranches Equity, Mezz I et Mezz II, et génère un spread nul sur la tranche Senior. Cette figure illustre la difficulté du modèle calibré à reproduire simultanément le risque fréquent des tranches basses et le risque de queue des tranches supérieures.}
+    \caption{Comparaison, par tranche, entre les spreads observés sur le marché et les spreads produits par le modèle AJD sur l'échantillon 2014--2015.}
     \label{fig:market_vs_ajd}
 \end{figure}
 
-Les résultats de la figure \ref{fig:market_vs_ajd} montrent que le modèle AJD ne parvient pas à reproduire correctement la structure des spreads observés sur l'ensemble des tranches. La sous-tarification est particulièrement marquée sur la tranche Equity : le modèle reste systématiquement en dessous du marché sur toute la période, ce qui indique qu'il génère trop peu de pertes fréquentes à court et moyen terme. La même conclusion vaut pour la tranche Mezz II, dont les spreads simulés demeurent très inférieurs aux spreads observés.
+La Figure \ref{fig:market_vs_ajd} confirme ces résultats. La sous-tarification est particulièrement marquée sur la tranche Equity, traduisant un déficit de pertes fréquentes à court et moyen terme. La tranche Mezz II est également significativement sous-évaluée. La tranche Mezz I est mieux captée, bien que les spreads simulés restent globalement inférieurs aux observations de marché.
 
-La tranche Mezz I est la seule pour laquelle le modèle capte partiellement la dynamique du marché. Les niveaux simulés restent toutefois trop faibles sur la majeure partie de l'échantillon, même si l'écart se réduit sur certaines dates de fin de période. Cette amélioration locale ne suffit pas à compenser l'écart important observé sur les autres tranches.
+Le résultat le plus notable concerne la tranche Senior, pour laquelle le modèle produit un spread nul sur toute la période, alors que le marché valorise systématiquement un spread positif. Cela révèle une incapacité à générer un niveau suffisant de risque de queue.
 
-Le résultat le plus significatif concerne la tranche Senior : le spread simulé est nul sur toute la période, alors que le marché valorise systématiquement un spread positif compris entre environ $1.2$ et $1.6$ bps. Le modèle calibré est donc incapable de générer un risque de queue suffisant pour atteindre la partie haute de la structure du capital. Autrement dit, la dynamique retenue produit trop peu de scénarios de pertes extrêmes.
-
-Dans cette calibration, le modèle AJD conduit ainsi à une structure de pertes trop concentrée sur les couches intermédiaires, tout en sous-estimant à la fois le risque fréquent des tranches basses et le risque extrême des tranches hautes. Cela explique la mauvaise qualité d'ajustement globale observée sur la RMSE logarithmique.
-
-
-Le mauvais ajustement observé ne provient pas d'un problème numérique isolé, mais de la structure même du modèle calibré. En effet, l'intensité totale est écrite sous la forme
+Cette mauvaise qualité d'ajustement s'explique par la structure même du modèle. L'intensité totale est donnée par
 \begin{equation}
 \lambda_i(t)=\lambda_i^{idio}(t)+\beta\,\lambda^{syst}(t),
 \end{equation}
-tandis que la dynamique systémique à sauts est fixée à partir de la littérature. La calibration ne porte donc essentiellement que sur $\beta$, l'intensité idiosyncratique étant ensuite imposée par la contrainte de \textit{repricing} du CDS de l'indice. Cette spécification laisse au modèle trop peu de flexibilité pour ajuster simultanément l'ensemble des tranches.
+où seule la sensibilité $\beta$ est calibrée, l'intensité idiosyncratique étant imposée par la contrainte de repricing. Cette spécification limite fortement la flexibilité du modèle.
 
-Dans ce cadre, l'optimisation tend à écraser la composante idiosyncratique vers zéro afin de respecter la contrainte sur le spread CDS agrégé. Le modèle génère alors trop peu de pertes fréquentes sur les tranches basses, ce qui explique la sous-tarification observée sur l'Equity et la Mezz I. Inversement, comme le $\beta$ calibré reste modéré, les chocs du facteur systémique ne sont pas transmis avec une intensité suffisante pour atteindre régulièrement les tranches supérieures, d'où un spread quasi nul sur la tranche Senior.
+Dans ce cadre, l'optimisation tend à réduire $\lambda_{idio}$ afin de respecter la contrainte sur le CDS agrégé, ce qui diminue les pertes fréquentes sur les tranches basses. Par ailleurs, la valeur modérée de $\beta$ ne permet pas de transmettre suffisamment les chocs systémiques pour atteindre les tranches supérieures. Le modèle échoue ainsi à produire une distribution de pertes cohérente sur l'ensemble de la structure.
 
-Autrement dit, le modèle calibré concentre mal la distribution des pertes : il réduit excessivement le risque idiosyncratique sans pour autant générer assez de risque de queue. Ce résultat s'explique aussi par un conflit de régimes : les paramètres de saut retenus sont conçus pour représenter un environnement de stress macroéconomique, alors que l'échantillon 2014--2015 correspond à une période de marché relativement calme. Le modèle AJD utilisé ici reste donc pertinent sur le plan structurel, mais sa version parcimonieuse calibrée dans notre cadre ne dispose pas d'assez de degrés de liberté pour reproduire finement les spreads observés.
+Ce résultat reflète également un conflit de régimes : les paramètres de saut retenus sont calibrés pour représenter un environnement de stress, alors que l'échantillon 2014--2015 correspond à une période de marché relativement calme.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{images/erreur_de_calibration_AJD_LHP.png}
-    \caption{Comparaison des erreurs de calibration logarithmiques entre le modèle à intensité stochastique AJD et la copule gaussienne LHP sur les dix dates de l'échantillon. On observe que l'erreur du modèle AJD demeure systématiquement plus élevée que celle du modèle LHP, ce qui confirme la difficulté de l'approche AJD calibrée à reproduire finement les spreads observés sur cette période de marché calme.}
+    \caption{Comparaison des erreurs de calibration logarithmiques entre le modèle AJD et la copule gaussienne LHP.}
     \label{fig:rmse_ajd_lhp}
 \end{figure}
 
+La Figure \ref{fig:rmse_ajd_lhp} met en évidence un écart de performance stable entre les deux modèles. La copule gaussienne LHP domine systématiquement l'AJD sur l'ensemble des dates, ce qui confirme que l'écart observé est structurel et non lié à des effets de calibration ponctuels.
 
-La Figure \ref{fig:rmse_ajd_lhp} montre avant tout que l'écart de performance entre les deux modèles est stable dans le temps. LHP domine systématiquement l'AJD sur chacune des dix dates, sans exception, ce qui exclut l'hypothèse d'un simple accident de calibration sur quelques observations isolées. L'écart n'est donc pas marginal : il est structurel sur l'ensemble de l'échantillon.
-
-On remarque également que la RMSE du modèle LHP reste non seulement plus faible, mais aussi plus resserrée d'une date à l'autre. À l'inverse, le modèle AJD présente un niveau d'erreur élevé sur toute la période, avec une légère dégradation en fin d'échantillon. Cette régularité est importante : elle indique que le modèle AJD ne manque pas une date particulière, mais qu'il peine à reproduire la forme globale des spreads observés.
-
-La figure met ainsi en évidence un point simple mais essentiel : sur la seule métrique de \textit{fit} instantané, le modèle LHP reste plus efficace sur notre jeu de données. Autrement dit, si l'objectif était uniquement de minimiser l'erreur de calibration à date, la copule gaussienne fournirait ici une meilleure approximation des quotes de marché que le modèle AJD.
+De plus, l'erreur du modèle LHP est non seulement plus faible, mais également plus stable dans le temps, tandis que celle du modèle AJD reste élevée sur toute la période. Ainsi, du point de vue du fit instantané, la copule gaussienne fournit ici une meilleure approximation des spreads de marché.
